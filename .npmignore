@@ -1,0 +1,10 @@
+# Ignore everything
+/*
+
+# But don't ignore dist
+!/dist
+
+# Don't ignore package.json, README.md and other important files
+!/package.json
+!/README.md
+!/LICENSE

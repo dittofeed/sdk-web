@@ -25,7 +25,7 @@
   },
   "packageManager": "yarn@3.6.0",
   "dependencies": {
-    "@dittofeed/sdk-js-base": "file:../sdk-js-base",
+    "@dittofeed/sdk-js-base": "^0.1.0",
     "uuid": "^9.0.0"
   }
 }

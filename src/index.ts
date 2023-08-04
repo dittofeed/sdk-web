@@ -13,7 +13,7 @@ export * from "@dittofeed/sdk-js-base";
 export type TimeoutHandle = ReturnType<typeof setTimeout>;
 
 /**
- * Dittofeed web SDK, used to send events to Dittofeed, an open source
+ * Dittofeed web SDK, used to send events to Dittofeed from the browser, an open source
  * customer engagement platform.
  *
  * @class
@@ -63,38 +63,37 @@ export type TimeoutHandle = ReturnType<typeof setTimeout>;
  * await DittofeedSdk.flush();
  */
 export class DittofeedSdk {
-  private static instance: DittofeedSdk;
+  private static instance: DittofeedSdk | null = null;
   private baseSdk: DittofeedSdkBase<TimeoutHandle>;
 
   static async init(initParams: InitParamsDataBase): Promise<DittofeedSdk> {
-    const baseSdk = new DittofeedSdkBase({
-      uuid: () => uuidv4(),
-      issueRequest: async (
-        data,
-        { host = "https://dittofeed.com", writeKey }
-      ) => {
-        const url = `${host}/api/public/apps/batch`;
-        const headers = {
-          authorization: writeKey,
-          "Content-Type": "application/json",
-        };
-
-        const response = await fetch(url, {
-          method: "POST",
-          headers: headers,
-          body: JSON.stringify(data),
-        });
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-      },
-      setTimeout,
-      clearTimeout,
-      ...initParams,
-    });
-
     if (!DittofeedSdk.instance) {
+      const baseSdk = new DittofeedSdkBase({
+        uuid: () => uuidv4(),
+        issueRequest: async (
+          data,
+          { host = "https://dittofeed.com", writeKey }
+        ) => {
+          const url = `${host}/api/public/apps/batch`;
+          const headers = {
+            authorization: writeKey,
+            "Content-Type": "application/json",
+          };
+
+          const response = await fetch(url, {
+            method: "POST",
+            headers: headers,
+            body: JSON.stringify(data),
+          });
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+        },
+        setTimeout,
+        clearTimeout,
+        ...initParams,
+      });
       DittofeedSdk.instance = new DittofeedSdk(baseSdk);
     }
     return DittofeedSdk.instance;
@@ -112,6 +111,9 @@ export class DittofeedSdk {
    * @returns
    */
   public static identify(params: IdentifyData) {
+    if (!this.instance) {
+      return;
+    }
     return this.instance.baseSdk.identify(params);
   }
 
@@ -122,6 +124,9 @@ export class DittofeedSdk {
    * @returns
    */
   public static track(params: TrackData) {
+    if (!this.instance) {
+      return;
+    }
     return this.instance.baseSdk.track(params);
   }
 
@@ -132,6 +137,9 @@ export class DittofeedSdk {
    * @returns
    */
   public static page(params: PageData) {
+    if (!this.instance) {
+      return;
+    }
     return this.instance.baseSdk.page(params);
   }
 
@@ -143,6 +151,9 @@ export class DittofeedSdk {
    * @returns
    */
   public static screen(params: ScreenData) {
+    if (!this.instance) {
+      return;
+    }
     return this.instance.baseSdk.screen(params);
   }
 
@@ -152,6 +163,9 @@ export class DittofeedSdk {
    * @returns
    */
   public static flush() {
+    if (!this.instance) {
+      return;
+    }
     return this.instance.baseSdk.flush();
   }
 }

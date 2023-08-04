@@ -1,0 +1,31 @@
+{
+  "name": "@dittofeed/sdk-web",
+  "version": "0.0.0",
+  "description": "Dittofeed's web sdk.",
+  "main": "dist/cjs/index.js",
+  "module": "dist/ejs/index.js",
+  "types": "dist/cjs/index.d.ts",
+  "files": [
+    "dist/"
+  ],
+  "private": false,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dittofeed/sdk-js-base.git"
+  },
+  "author": "max@dittofeed.com",
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc -p tsconfig.json && tsc -p tsconfig.cjs.json",
+    "prepublishOnly": "yarn build"
+  },
+  "devDependencies": {
+    "@types/uuid": "^9.0.2",
+    "typescript": "^5.1.0"
+  },
+  "packageManager": "yarn@3.6.0",
+  "dependencies": {
+    "@dittofeed/sdk-js-base": "^0.1.0",
+    "uuid": "^9.0.0"
+  }
+}

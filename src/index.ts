@@ -90,8 +90,8 @@ export class DittofeedSdk {
             throw new Error(`HTTP error! status: ${response.status}`);
           }
         },
-        setTimeout,
-        clearTimeout,
+        setTimeout: (callback, timeout) => window.setTimeout(callback, timeout),
+        clearTimeout: (timeoutHandle) => window.clearTimeout(timeoutHandle),
         ...initParams,
       });
       DittofeedSdk.instance = new DittofeedSdk(baseSdk);

@@ -1,6 +1,6 @@
 # @dittofeed/sdk-web
 
-Dittofeed web SDK, used to send events to Dittofeed from the browser, an open source customer engagement platform.
+Dittofeed web SDK, used to send events to Dittofeed from the browser. Dittofeed is an open source customer engagement platform.
 
 ## Installation
 

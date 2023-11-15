@@ -19,16 +19,19 @@
     "build": "tsc -p tsconfig.json && tsc -p tsconfig.cjs.json",
     "build:snippet": "vite build",
     "dev:snippet": "vite",
+    "dev:server": "node server.js",
     "prepublishOnly": "yarn build"
   },
   "devDependencies": {
     "@types/uuid": "^9.0.2",
+    "fastify": "^4.24.3",
     "typescript": "^5.1.0",
     "vite": "^4.5.0"
   },
   "packageManager": "yarn@3.6.0",
   "dependencies": {
     "@dittofeed/sdk-js-base": "^0.1.0",
+    "@fastify/cors": "^8.4.1",
     "uuid": "^9.0.0"
   }
 }

@@ -21,6 +21,6 @@
     "strict": true,
     "useUnknownInCatchVariables": true
   },
-  "include": ["./src/**/*.ts"],
+  "include": ["./src/**/*.ts", "src/snippetEntry.js"],
   "exclude": ["node_modules", "dist"]
 }

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>DittoFeed Library Test</title>
+  </head>
+  <body>
+    <h1>DittoFeed Library Test</h1>
+    <script type="text/javascript">
+      var _df = _df || [];
+
+      (function () {
+        var methods = ["track", "identify", "page", "flush"];
+        methods.forEach(function (method) {
+          _df[method] = function () {
+            _df.push([method].concat(Array.prototype.slice.call(arguments)));
+          };
+        });
+
+        var script = document.createElement("script");
+        script.type = "module";
+        script.async = true;
+        script.src = "http://localhost:5173/src/snippetEntry.js"; // URL where Vite serves your file
+
+        script.id = "df-tracker";
+        script.setAttribute("data-write-key", "Basic ZjI4OWZjMTMtMDQ5Ny00ZGY5LTliZjUtODkxMDRhZGNkOGZjOjQ2M2I5MmRhMjViOGM4Zjc=");
+        script.setAttribute("data-host", "http://localhost:3001");
+
+        document.head.appendChild(script);
+      })();
+
+      _df.identify({
+        userId: "123",
+        email: "test@email.com"
+      });
+    </script>
+  </body>
+</html>

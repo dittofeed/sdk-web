@@ -252,7 +252,7 @@ function q() {
 (async function() {
   const t = q();
   if (t) {
-    const n = window_.df;
+    const n = window._df;
     await b.init(t), Array.isArray(n) && n.forEach((i) => {
       if (Array.isArray(i) && i.length > 0) {
         const s = i[0];

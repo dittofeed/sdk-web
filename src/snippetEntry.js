@@ -18,7 +18,7 @@ function getConfig() {
 (async function load() {
   const config = getConfig();
   if (config) {
-    const init = window_.df;
+    const init = window._df;
     await DittofeedSdk.init(config);
 
     // Process any queued calls

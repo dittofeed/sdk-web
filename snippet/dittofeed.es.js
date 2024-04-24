@@ -1,20 +1,20 @@
-var S = globalThis && globalThis.__awaiter || function(e, t, i, n) {
+var S = globalThis && globalThis.__awaiter || function(e, t, n, i) {
   function s(u) {
-    return u instanceof i ? u : new i(function(o) {
+    return u instanceof n ? u : new n(function(o) {
       o(u);
     });
   }
-  return new (i || (i = Promise))(function(u, o) {
+  return new (n || (n = Promise))(function(u, o) {
     function l(c) {
       try {
-        r(n.next(c));
+        r(i.next(c));
       } catch (h) {
         o(h);
       }
     }
     function d(c) {
       try {
-        r(n.throw(c));
+        r(i.throw(c));
       } catch (h) {
         o(h);
       }
@@ -22,19 +22,19 @@ var S = globalThis && globalThis.__awaiter || function(e, t, i, n) {
     function r(c) {
       c.done ? u(c.value) : s(c.value).then(l, d);
     }
-    r((n = n.apply(e, t || [])).next());
+    r((i = i.apply(e, t || [])).next());
   });
 };
 class T {
   constructor({
     batchSize: t,
-    timeout: i,
+    timeout: n,
     // default timeout is 500ms
-    executeBatch: n,
+    executeBatch: i,
     setTimeout: s,
     clearTimeout: u
   }) {
-    this.queue = [], this.batchSize = t, this.timeout = i, this.timeoutHandle = null, this.executeBatch = n, this.setTimeout = s, this.clearTimeout = u;
+    this.queue = [], this.batchSize = t, this.timeout = n, this.timeoutHandle = null, this.executeBatch = i, this.setTimeout = s, this.clearTimeout = u;
   }
   // Method to add a task to the queue
   submit(t) {
@@ -58,23 +58,23 @@ class T {
     });
   }
 }
-var g = globalThis && globalThis.__awaiter || function(e, t, i, n) {
+var g = globalThis && globalThis.__awaiter || function(e, t, n, i) {
   function s(u) {
-    return u instanceof i ? u : new i(function(o) {
+    return u instanceof n ? u : new n(function(o) {
       o(u);
     });
   }
-  return new (i || (i = Promise))(function(u, o) {
+  return new (n || (n = Promise))(function(u, o) {
     function l(c) {
       try {
-        r(n.next(c));
+        r(i.next(c));
       } catch (h) {
         o(h);
       }
     }
     function d(c) {
       try {
-        r(n.throw(c));
+        r(i.throw(c));
       } catch (h) {
         o(h);
       }
@@ -82,14 +82,14 @@ var g = globalThis && globalThis.__awaiter || function(e, t, i, n) {
     function r(c) {
       c.done ? u(c.value) : s(c.value).then(l, d);
     }
-    r((n = n.apply(e, t || [])).next());
+    r((i = i.apply(e, t || [])).next());
   });
-}, f;
+}, m;
 (function(e) {
   e.Identify = "identify", e.Track = "track", e.Page = "page", e.Screen = "screen";
-})(f || (f = {}));
+})(m || (m = {}));
 class k {
-  constructor({ issueRequest: t, writeKey: i, host: n = "https://dittofeed.com", uuid: s, setTimeout: u, clearTimeout: o }) {
+  constructor({ issueRequest: t, writeKey: n, host: i = "https://dittofeed.com", uuid: s, setTimeout: u, clearTimeout: o }) {
     this.batchQueue = new T({
       timeout: 500,
       batchSize: 5,
@@ -98,29 +98,29 @@ class k {
       executeBatch: (l) => g(this, void 0, void 0, function* () {
         yield t({
           batch: l
-        }, { writeKey: i, host: n });
+        }, { writeKey: n, host: i });
       })
     }), this.uuid = s;
   }
   identify(t) {
-    var i;
-    const n = Object.assign({ messageId: (i = t.messageId) !== null && i !== void 0 ? i : this.uuid(), type: f.Identify }, t);
-    this.batchQueue.submit(n);
+    var n;
+    const i = Object.assign({ messageId: (n = t.messageId) !== null && n !== void 0 ? n : this.uuid(), type: m.Identify }, t);
+    this.batchQueue.submit(i);
   }
   track(t) {
-    var i;
-    const n = Object.assign({ messageId: (i = t.messageId) !== null && i !== void 0 ? i : this.uuid(), type: f.Track }, t);
-    this.batchQueue.submit(n);
+    var n;
+    const i = Object.assign({ messageId: (n = t.messageId) !== null && n !== void 0 ? n : this.uuid(), type: m.Track }, t);
+    this.batchQueue.submit(i);
   }
   page(t) {
-    var i;
-    const n = Object.assign({ messageId: (i = t.messageId) !== null && i !== void 0 ? i : this.uuid(), type: f.Page }, t);
-    this.batchQueue.submit(n);
+    var n;
+    const i = Object.assign({ messageId: (n = t.messageId) !== null && n !== void 0 ? n : this.uuid(), type: m.Page }, t);
+    this.batchQueue.submit(i);
   }
   screen(t) {
-    var i;
-    const n = Object.assign({ messageId: (i = t.messageId) !== null && i !== void 0 ? i : this.uuid(), type: f.Screen }, t);
-    this.batchQueue.submit(n);
+    var n;
+    const i = Object.assign({ messageId: (n = t.messageId) !== null && n !== void 0 ? n : this.uuid(), type: m.Screen }, t);
+    this.batchQueue.submit(i);
   }
   flush() {
     return g(this, void 0, void 0, function* () {
@@ -144,43 +144,43 @@ function x(e, t = 0) {
 const _ = typeof crypto < "u" && crypto.randomUUID && crypto.randomUUID.bind(crypto), p = {
   randomUUID: _
 };
-function U(e, t, i) {
+function U(e, t, n) {
   if (p.randomUUID && !t && !e)
     return p.randomUUID();
   e = e || {};
-  const n = e.random || (e.rng || I)();
-  if (n[6] = n[6] & 15 | 64, n[8] = n[8] & 63 | 128, t) {
-    i = i || 0;
+  const i = e.random || (e.rng || I)();
+  if (i[6] = i[6] & 15 | 64, i[8] = i[8] & 63 | 128, t) {
+    n = n || 0;
     for (let s = 0; s < 16; ++s)
-      t[i + s] = n[s];
+      t[n + s] = i[s];
     return t;
   }
-  return x(n);
+  return x(i);
 }
-const w = class m {
+const w = class f {
   static async init(t) {
-    if (!m.instance) {
-      const i = new k({
+    if (!f.instance) {
+      const n = new k({
         uuid: () => U(),
-        issueRequest: async (n, { host: s = "https://dittofeed.com", writeKey: u }) => {
+        issueRequest: async (i, { host: s = "https://dittofeed.com", writeKey: u }) => {
           const o = `${s}/api/public/apps/batch`, d = await fetch(o, {
             method: "POST",
             headers: {
               authorization: u,
               "Content-Type": "application/json"
             },
-            body: JSON.stringify(n)
+            body: JSON.stringify(i)
           });
           if (!d.ok)
             throw new Error(`HTTP error! status: ${d.status}`);
         },
-        setTimeout: (n, s) => window.setTimeout(n, s),
-        clearTimeout: (n) => window.clearTimeout(n),
+        setTimeout: (i, s) => window.setTimeout(i, s),
+        clearTimeout: (i) => window.clearTimeout(i),
         ...t
       });
-      m.instance = new m(i);
+      f.instance = new f(n);
     }
-    return m.instance;
+    return f.instance;
   }
   constructor(t) {
     this.baseSdk = t;
@@ -251,12 +251,15 @@ function q() {
 }
 (async function() {
   const t = q();
-  t && (await b.init(t), Array.isArray(window._df) && window._df.forEach((i) => {
-    if (Array.isArray(i) && i.length > 0) {
-      const n = i[0];
-      b[n].apply(b, i.slice(1));
-    }
-  }), window._df = b);
+  if (t) {
+    const n = window_.df;
+    await b.init(t), Array.isArray(n) && n.forEach((i) => {
+      if (Array.isArray(i) && i.length > 0) {
+        const s = i[0];
+        b[s].apply(b, i.slice(1));
+      }
+    }), window._df = b;
+  }
 })();
 export {
   b as default

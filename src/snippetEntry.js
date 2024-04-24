@@ -18,11 +18,12 @@ function getConfig() {
 (async function load() {
   const config = getConfig();
   if (config) {
+    const init = window_.df;
     await DittofeedSdk.init(config);
 
     // Process any queued calls
-    if (Array.isArray(window._df)) {
-      window._df.forEach((call) => {
+    if (Array.isArray(init)) {
+      init.forEach((call) => {
         if (Array.isArray(call) && call.length > 0) {
           const methodName = call[0];
           const method = DittofeedSdk[methodName];

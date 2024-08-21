@@ -1,28 +1,28 @@
-var S = globalThis && globalThis.__awaiter || function(e, t, n, i) {
+var y = globalThis && globalThis.__awaiter || function(i, t, n, e) {
   function s(u) {
-    return u instanceof n ? u : new n(function(o) {
-      o(u);
+    return u instanceof n ? u : new n(function(a) {
+      a(u);
     });
   }
-  return new (n || (n = Promise))(function(u, o) {
-    function l(c) {
+  return new (n || (n = Promise))(function(u, a) {
+    function h(o) {
       try {
-        r(i.next(c));
-      } catch (h) {
-        o(h);
+        r(e.next(o));
+      } catch (l) {
+        a(l);
       }
     }
-    function d(c) {
+    function d(o) {
       try {
-        r(i.throw(c));
-      } catch (h) {
-        o(h);
+        r(e.throw(o));
+      } catch (l) {
+        a(l);
       }
     }
-    function r(c) {
-      c.done ? u(c.value) : s(c.value).then(l, d);
+    function r(o) {
+      o.done ? u(o.value) : s(o.value).then(h, d);
     }
-    r((i = i.apply(e, t || [])).next());
+    r((e = e.apply(i, t || [])).next());
   });
 };
 class T {
@@ -30,11 +30,13 @@ class T {
     batchSize: t,
     timeout: n,
     // default timeout is 500ms
-    executeBatch: i,
+    executeBatch: e,
     setTimeout: s,
-    clearTimeout: u
+    clearTimeout: u,
+    baseDelay: a,
+    retries: h
   }) {
-    this.queue = [], this.batchSize = t, this.timeout = n, this.timeoutHandle = null, this.executeBatch = i, this.setTimeout = s, this.clearTimeout = u;
+    this.queue = [], this.batchSize = t, this.timeout = n, this.timeoutHandle = null, this.executeBatch = e, this.setTimeout = s, this.clearTimeout = u, this.pending = null, this.baseDelay = a ?? 500, this.retries = h ?? 5;
   }
   // Method to add a task to the queue
   submit(t) {
@@ -50,137 +52,177 @@ class T {
   }
   // Process the queue by executing the batch function with the current batch, then remove the batch from the queue
   flush() {
-    return S(this, void 0, void 0, function* () {
-      if (this.clearTimer(), this.queue.length === 0)
-        return;
-      const t = this.queue.slice(0, this.batchSize);
-      this.queue = this.queue.slice(this.batchSize), yield this.executeBatch(t);
+    return y(this, void 0, void 0, function* () {
+      if (this.clearTimer(), this.queue.length !== 0) {
+        if (this.pending)
+          return this.pending;
+        try {
+          this.pending = this.flushInner(), yield this.pending;
+        } catch (t) {
+          throw t;
+        } finally {
+          this.pending = null;
+        }
+      }
+    });
+  }
+  // The inner function that actually performs the flush
+  flushInner() {
+    return y(this, void 0, void 0, function* () {
+      for (; this.queue.length > 0; ) {
+        const t = this.queue.slice(0, this.batchSize);
+        this.queue = this.queue.slice(this.batchSize), yield this.executeBatchWithRetry(t);
+      }
+    });
+  }
+  executeBatchWithRetry(t) {
+    return y(this, void 0, void 0, function* () {
+      yield this.retryWithExponentialBackoff(() => y(this, void 0, void 0, function* () {
+        yield this.executeBatch(t);
+      }));
+    });
+  }
+  retryWithExponentialBackoff(t) {
+    return y(this, void 0, void 0, function* () {
+      const n = Math.max(0, this.retries);
+      for (let e = 0; e <= n; e++)
+        try {
+          return yield t();
+        } catch (s) {
+          if (e === n)
+            throw s;
+          const u = this.baseDelay * Math.pow(2, e);
+          yield new Promise((a) => setTimeout(a, u));
+        }
+      throw new Error("This line should never be reached");
     });
   }
 }
-var g = globalThis && globalThis.__awaiter || function(e, t, n, i) {
+var b = globalThis && globalThis.__awaiter || function(i, t, n, e) {
   function s(u) {
-    return u instanceof n ? u : new n(function(o) {
-      o(u);
+    return u instanceof n ? u : new n(function(a) {
+      a(u);
     });
   }
-  return new (n || (n = Promise))(function(u, o) {
-    function l(c) {
+  return new (n || (n = Promise))(function(u, a) {
+    function h(o) {
       try {
-        r(i.next(c));
-      } catch (h) {
-        o(h);
+        r(e.next(o));
+      } catch (l) {
+        a(l);
       }
     }
-    function d(c) {
+    function d(o) {
       try {
-        r(i.throw(c));
-      } catch (h) {
-        o(h);
+        r(e.throw(o));
+      } catch (l) {
+        a(l);
       }
     }
-    function r(c) {
-      c.done ? u(c.value) : s(c.value).then(l, d);
+    function r(o) {
+      o.done ? u(o.value) : s(o.value).then(h, d);
     }
-    r((i = i.apply(e, t || [])).next());
+    r((e = e.apply(i, t || [])).next());
   });
-}, m;
-(function(e) {
-  e.Identify = "identify", e.Track = "track", e.Page = "page", e.Screen = "screen";
-})(m || (m = {}));
-class k {
-  constructor({ issueRequest: t, writeKey: n, host: i = "https://dittofeed.com", uuid: s, setTimeout: u, clearTimeout: o }) {
+}, f;
+(function(i) {
+  i.Identify = "identify", i.Track = "track", i.Page = "page", i.Screen = "screen";
+})(f || (f = {}));
+class S {
+  constructor({ issueRequest: t, writeKey: n, host: e = "https://dittofeed.com", uuid: s, setTimeout: u, clearTimeout: a, baseDelay: h, retries: d }) {
     this.batchQueue = new T({
       timeout: 500,
       batchSize: 5,
       setTimeout: u,
-      clearTimeout: o,
-      executeBatch: (l) => g(this, void 0, void 0, function* () {
+      clearTimeout: a,
+      baseDelay: h,
+      retries: d,
+      executeBatch: (r) => b(this, void 0, void 0, function* () {
         yield t({
-          batch: l
-        }, { writeKey: n, host: i });
+          batch: r
+        }, { writeKey: n, host: e });
       })
     }), this.uuid = s;
   }
   identify(t) {
     var n;
-    const i = Object.assign({ messageId: (n = t.messageId) !== null && n !== void 0 ? n : this.uuid(), type: m.Identify }, t);
-    this.batchQueue.submit(i);
+    const e = Object.assign({ messageId: (n = t.messageId) !== null && n !== void 0 ? n : this.uuid(), type: f.Identify }, t);
+    this.batchQueue.submit(e);
   }
   track(t) {
     var n;
-    const i = Object.assign({ messageId: (n = t.messageId) !== null && n !== void 0 ? n : this.uuid(), type: m.Track }, t);
-    this.batchQueue.submit(i);
+    const e = Object.assign({ messageId: (n = t.messageId) !== null && n !== void 0 ? n : this.uuid(), type: f.Track }, t);
+    this.batchQueue.submit(e);
   }
   page(t) {
     var n;
-    const i = Object.assign({ messageId: (n = t.messageId) !== null && n !== void 0 ? n : this.uuid(), type: m.Page }, t);
-    this.batchQueue.submit(i);
+    const e = Object.assign({ messageId: (n = t.messageId) !== null && n !== void 0 ? n : this.uuid(), type: f.Page }, t);
+    this.batchQueue.submit(e);
   }
   screen(t) {
     var n;
-    const i = Object.assign({ messageId: (n = t.messageId) !== null && n !== void 0 ? n : this.uuid(), type: m.Screen }, t);
-    this.batchQueue.submit(i);
+    const e = Object.assign({ messageId: (n = t.messageId) !== null && n !== void 0 ? n : this.uuid(), type: f.Screen }, t);
+    this.batchQueue.submit(e);
   }
   flush() {
-    return g(this, void 0, void 0, function* () {
+    return b(this, void 0, void 0, function* () {
       yield this.batchQueue.flush();
     });
   }
 }
-let y;
-const v = new Uint8Array(16);
-function I() {
-  if (!y && (y = typeof crypto < "u" && crypto.getRandomValues && crypto.getRandomValues.bind(crypto), !y))
+let p;
+const k = new Uint8Array(16);
+function x() {
+  if (!p && (p = typeof crypto < "u" && crypto.getRandomValues && crypto.getRandomValues.bind(crypto), !p))
     throw new Error("crypto.getRandomValues() not supported. See https://github.com/uuidjs/uuid#getrandomvalues-not-supported");
-  return y(v);
+  return p(k);
 }
-const a = [];
-for (let e = 0; e < 256; ++e)
-  a.push((e + 256).toString(16).slice(1));
-function x(e, t = 0) {
-  return (a[e[t + 0]] + a[e[t + 1]] + a[e[t + 2]] + a[e[t + 3]] + "-" + a[e[t + 4]] + a[e[t + 5]] + "-" + a[e[t + 6]] + a[e[t + 7]] + "-" + a[e[t + 8]] + a[e[t + 9]] + "-" + a[e[t + 10]] + a[e[t + 11]] + a[e[t + 12]] + a[e[t + 13]] + a[e[t + 14]] + a[e[t + 15]]).toLowerCase();
+const c = [];
+for (let i = 0; i < 256; ++i)
+  c.push((i + 256).toString(16).slice(1));
+function I(i, t = 0) {
+  return (c[i[t + 0]] + c[i[t + 1]] + c[i[t + 2]] + c[i[t + 3]] + "-" + c[i[t + 4]] + c[i[t + 5]] + "-" + c[i[t + 6]] + c[i[t + 7]] + "-" + c[i[t + 8]] + c[i[t + 9]] + "-" + c[i[t + 10]] + c[i[t + 11]] + c[i[t + 12]] + c[i[t + 13]] + c[i[t + 14]] + c[i[t + 15]]).toLowerCase();
 }
-const _ = typeof crypto < "u" && crypto.randomUUID && crypto.randomUUID.bind(crypto), p = {
+const _ = typeof crypto < "u" && crypto.randomUUID && crypto.randomUUID.bind(crypto), w = {
   randomUUID: _
 };
-function U(e, t, n) {
-  if (p.randomUUID && !t && !e)
-    return p.randomUUID();
-  e = e || {};
-  const i = e.random || (e.rng || I)();
-  if (i[6] = i[6] & 15 | 64, i[8] = i[8] & 63 | 128, t) {
+function U(i, t, n) {
+  if (w.randomUUID && !t && !i)
+    return w.randomUUID();
+  i = i || {};
+  const e = i.random || (i.rng || x)();
+  if (e[6] = e[6] & 15 | 64, e[8] = e[8] & 63 | 128, t) {
     n = n || 0;
     for (let s = 0; s < 16; ++s)
-      t[n + s] = i[s];
+      t[n + s] = e[s];
     return t;
   }
-  return x(i);
+  return I(e);
 }
-const w = class f {
+const v = class m {
   static async init(t) {
-    if (!f.instance) {
-      const n = new k({
+    if (!m.instance) {
+      const n = new S({
         uuid: () => U(),
-        issueRequest: async (i, { host: s = "https://dittofeed.com", writeKey: u }) => {
-          const o = `${s}/api/public/apps/batch`, d = await fetch(o, {
+        issueRequest: async (e, { host: s = "https://dittofeed.com", writeKey: u }) => {
+          const a = `${s}/api/public/apps/batch`, d = await fetch(a, {
             method: "POST",
             headers: {
               authorization: u,
               "Content-Type": "application/json"
             },
-            body: JSON.stringify(i)
+            body: JSON.stringify(e)
           });
           if (!d.ok)
             throw new Error(`HTTP error! status: ${d.status}`);
         },
-        setTimeout: (i, s) => window.setTimeout(i, s),
-        clearTimeout: (i) => window.clearTimeout(i),
+        setTimeout: (e, s) => window.setTimeout(e, s),
+        clearTimeout: (e) => window.clearTimeout(e),
         ...t
       });
-      f.instance = new f(n);
+      m.instance = new m(n);
     }
-    return f.instance;
+    return m.instance;
   }
   constructor(t) {
     this.baseSdk = t;
@@ -237,30 +279,30 @@ const w = class f {
       return this.instance.baseSdk.flush();
   }
 };
-w.instance = null;
-let b = w;
+v.instance = null;
+let g = v;
 function q() {
-  const e = document.getElementById("df-tracker");
-  if (!e)
+  const i = document.getElementById("df-tracker");
+  if (!i)
     return null;
-  const t = e.getAttribute("data-write-key");
+  const t = i.getAttribute("data-write-key");
   return t ? {
     writeKey: t,
-    host: e.getAttribute("data-host") ?? void 0
+    host: i.getAttribute("data-host") ?? void 0
   } : null;
 }
 (async function() {
   const t = q();
   if (t) {
     const n = window._df;
-    await b.init(t), Array.isArray(n) && n.forEach((i) => {
-      if (Array.isArray(i) && i.length > 0) {
-        const s = i[0];
-        b[s].apply(b, i.slice(1));
+    await g.init(t), Array.isArray(n) && n.forEach((e) => {
+      if (Array.isArray(e) && e.length > 0) {
+        const s = e[0];
+        g[s].apply(g, e.slice(1));
       }
-    }), window._df = b;
+    }), window._df = g;
   }
 })();
 export {
-  b as default
+  g as default
 };

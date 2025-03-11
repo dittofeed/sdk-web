@@ -226,8 +226,24 @@ export class DittofeedSdk {
 
   public getAnonymousId(): string {
     if (!this.anonymousId) {
-      this.anonymousId = uuidv4();
+      const storedAnonymousId = this.retrieveStoredAnonymousId();
+      let anonymousId: string;
+      if (storedAnonymousId) {
+        anonymousId = storedAnonymousId;
+      } else {
+        anonymousId = uuidv4();
+        this.storeAnonymousId(anonymousId);
+      }
+      this.anonymousId = anonymousId;
     }
     return this.anonymousId;
+  }
+
+  private retrieveStoredAnonymousId(): string | null {
+    throw new Error("Not implemented");
+  }
+
+  private storeAnonymousId(anonymousId: string) {
+    throw new Error("Not implemented");
   }
 }

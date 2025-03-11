@@ -224,6 +224,10 @@ export class DittofeedSdk {
     return this.instance.getAnonymousId();
   }
 
+  /**
+   * Initializes the anonymous ID if it is not already set and returns it.
+   * @returns The anonymous ID.
+   */
   public getAnonymousId(): string {
     if (!this.anonymousId) {
       const storedAnonymousId = this.retrieveStoredAnonymousId();
@@ -239,11 +243,36 @@ export class DittofeedSdk {
     return this.anonymousId;
   }
 
+  /**
+   * Resets the anonymous ID and returns the new one.
+   * @returns The new anonymous ID.
+   */
+  public resetAnonymousId(): string {
+    if (!this.anonymousId) {
+      return this.getAnonymousId();
+    }
+    this.deleteAnonymousId();
+    return this.getAnonymousId();
+  }
+
+  /**
+   * Retrieves the anonymous ID from the storage.
+   * @returns The anonymous ID or null if it is not stored.
+   */
   private retrieveStoredAnonymousId(): string | null {
     throw new Error("Not implemented");
   }
 
+  /**
+   * Stores the anonymous ID.
+   * @param anonymousId - The anonymous ID to store.
+   */
   private storeAnonymousId(anonymousId: string) {
+    throw new Error("Not implemented");
+  }
+
+  private deleteAnonymousId() {
+    this.anonymousId = null;
     throw new Error("Not implemented");
   }
 }

@@ -10,7 +10,17 @@ import { v4 as uuidv4 } from "uuid";
 
 export * from "@dittofeed/sdk-js-base";
 
+export type Logger = {
+  log: (message: string, ...args: any[]) => void;
+  warn: (message: string, ...args: any[]) => void;
+  error: (message: string, ...args: any[]) => void;
+};
+
 export type TimeoutHandle = ReturnType<typeof setTimeout>;
+
+export interface InitParamsData extends InitParamsDataBase {
+  logger?: Logger;
+}
 
 /**
  * Dittofeed web SDK, used to send events to Dittofeed from the browser, an open source
@@ -66,6 +76,7 @@ export class DittofeedSdk {
   private static instance: DittofeedSdk | null = null;
   private baseSdk: DittofeedSdkBase<TimeoutHandle>;
   private anonymousId: string | null = null;
+  private logger: Logger | null = null;
 
   // Storage key constants
   private static readonly ANONYMOUS_ID = "DfAnonymousId";
@@ -109,10 +120,10 @@ export class DittofeedSdk {
    * @param initParams - The initialization parameters required to set up the SDK.
    * @returns A promise that resolves to the initialized Dittofeed SDK instance.
    */
-  static async init(initParams: InitParamsDataBase): Promise<DittofeedSdk> {
+  static async init(initParams: InitParamsData): Promise<DittofeedSdk> {
     if (!DittofeedSdk.instance) {
       const baseSdk = this.createBaseSdk(initParams);
-      DittofeedSdk.instance = new DittofeedSdk(baseSdk);
+      DittofeedSdk.instance = new DittofeedSdk(baseSdk, initParams.logger);
     }
     return DittofeedSdk.instance;
   }
@@ -125,13 +136,14 @@ export class DittofeedSdk {
    * @param initParams - The initialization parameters required to set up the SDK.
    * @returns A promise that resolves to the newly initialized Dittofeed SDK instance.
    */
-  static async initNew(initParams: InitParamsDataBase): Promise<DittofeedSdk> {
+  static async initNew(initParams: InitParamsData): Promise<DittofeedSdk> {
     const baseSdk = this.createBaseSdk(initParams);
-    return new DittofeedSdk(baseSdk);
+    return new DittofeedSdk(baseSdk, initParams.logger);
   }
 
-  constructor(baseSdk: DittofeedSdkBase<TimeoutHandle>) {
+  constructor(baseSdk: DittofeedSdkBase<TimeoutHandle>, logger?: Logger) {
     this.baseSdk = baseSdk;
+    this.logger = logger ?? null;
   }
 
   /**
@@ -287,7 +299,7 @@ export class DittofeedSdk {
       }
     } catch (error) {
       // localStorage might be disabled or unavailable
-      console.warn("Failed to access localStorage:", error);
+      this.logger?.warn("Failed to access localStorage:", error);
     }
 
     // Try sessionStorage last
@@ -300,7 +312,7 @@ export class DittofeedSdk {
       }
     } catch (error) {
       // sessionStorage might be disabled or unavailable
-      console.warn("Failed to access sessionStorage:", error);
+      this.logger?.warn("Failed to access sessionStorage:", error);
     }
 
     return null;
@@ -322,21 +334,21 @@ export class DittofeedSdk {
     try {
       document.cookie = cookieValue;
     } catch (error) {
-      console.warn("Failed to set cookie:", error);
+      this.logger?.warn("Failed to set cookie:", error);
     }
 
     // Store in localStorage as fallback
     try {
       localStorage.setItem(DittofeedSdk.ANONYMOUS_ID, anonymousId);
     } catch (error) {
-      console.warn("Failed to access localStorage:", error);
+      this.logger?.warn("Failed to access localStorage:", error);
     }
 
     // Store in sessionStorage as another fallback
     try {
       sessionStorage.setItem(DittofeedSdk.ANONYMOUS_ID, anonymousId);
     } catch (error) {
-      console.warn("Failed to access sessionStorage:", error);
+      this.logger?.warn("Failed to access sessionStorage:", error);
     }
   }
 
@@ -347,21 +359,21 @@ export class DittofeedSdk {
     try {
       document.cookie = `${DittofeedSdk.ANONYMOUS_ID}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;SameSite=Lax`;
     } catch (error) {
-      console.warn("Failed to delete cookie:", error);
+      this.logger?.warn("Failed to delete cookie:", error);
     }
 
     // Delete from localStorage
     try {
       localStorage.removeItem(DittofeedSdk.ANONYMOUS_ID);
     } catch (error) {
-      console.warn("Failed to access localStorage:", error);
+      this.logger?.warn("Failed to access localStorage:", error);
     }
 
     // Delete from sessionStorage
     try {
       sessionStorage.removeItem(DittofeedSdk.ANONYMOUS_ID);
     } catch (error) {
-      console.warn("Failed to access sessionStorage:", error);
+      this.logger?.warn("Failed to access sessionStorage:", error);
     }
   }
 }

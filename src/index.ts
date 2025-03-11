@@ -7,6 +7,8 @@ import {
   PageData,
   BaseIdentifyData,
   AnonymousIdentifyData,
+  BaseTrackData,
+  AnonymousTrackData,
 } from "@dittofeed/sdk-js-base";
 import { v4 as uuidv4 } from "uuid";
 
@@ -183,15 +185,25 @@ export class DittofeedSdk {
    * @param params
    * @returns
    */
-  public static track(params: TrackData) {
+  public static track(params: TrackData | BaseTrackData) {
     if (!this.instance) {
       return;
     }
     return this.instance.track(params);
   }
 
-  public track(params: TrackData) {
-    return this.baseSdk.track(params);
+  public track(params: TrackData | BaseTrackData) {
+    let data: TrackData;
+    if (!("anonymousId" in params) && !("userId" in params)) {
+      const anonymousData: AnonymousTrackData = {
+        ...params,
+        anonymousId: this.getAnonymousId(),
+      };
+      data = anonymousData;
+    } else {
+      data = params;
+    }
+    return this.baseSdk.track(data);
   }
 
   /**

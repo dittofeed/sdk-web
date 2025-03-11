@@ -141,7 +141,11 @@ export class DittofeedSdk {
     if (!this.instance) {
       return;
     }
-    return this.instance.baseSdk.identify(params);
+    return this.instance.identify(params);
+  }
+
+  public identify(params: IdentifyData) {
+    return this.baseSdk.identify(params);
   }
 
   /**
@@ -154,7 +158,11 @@ export class DittofeedSdk {
     if (!this.instance) {
       return;
     }
-    return this.instance.baseSdk.track(params);
+    return this.instance.track(params);
+  }
+
+  public track(params: TrackData) {
+    return this.baseSdk.track(params);
   }
 
   /**
@@ -167,7 +175,11 @@ export class DittofeedSdk {
     if (!this.instance) {
       return;
     }
-    return this.instance.baseSdk.page(params);
+    return this.instance.page(params);
+  }
+
+  public page(params: PageData) {
+    return this.baseSdk.page(params);
   }
 
   /**
@@ -181,7 +193,11 @@ export class DittofeedSdk {
     if (!this.instance) {
       return;
     }
-    return this.instance.baseSdk.screen(params);
+    return this.instance.screen(params);
+  }
+
+  public screen(params: ScreenData) {
+    return this.baseSdk.screen(params);
   }
 
   /**
@@ -193,6 +209,10 @@ export class DittofeedSdk {
     if (!this.instance) {
       return;
     }
-    return this.instance.baseSdk.flush();
+    return this.instance.flush();
+  }
+
+  public flush() {
+    return this.baseSdk.flush();
   }
 }

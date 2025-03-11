@@ -5,6 +5,8 @@ import {
   TrackData,
   ScreenData,
   PageData,
+  BaseIdentifyData,
+  AnonymousIdentifyData,
 } from "@dittofeed/sdk-js-base";
 import { v4 as uuidv4 } from "uuid";
 
@@ -153,9 +155,16 @@ export class DittofeedSdk {
    * @param params
    * @returns
    */
-  public static identify(params: IdentifyData) {
+  public static identify(params: IdentifyData | BaseIdentifyData) {
     if (!this.instance) {
       return;
+    }
+    let data: IdentifyData;
+    if (!("userId" in params) && !("anonymousId" in params)) {
+      const anonymousData: AnonymousIdentifyData = {
+        ...params,
+        anonymousId: this.instance.getAnonymousId(),
+      };
     }
     return this.instance.identify(params);
   }

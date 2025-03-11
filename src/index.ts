@@ -159,18 +159,22 @@ export class DittofeedSdk {
     if (!this.instance) {
       return;
     }
+
+    return this.instance.identify(params);
+  }
+
+  public identify(params: IdentifyData | BaseIdentifyData) {
     let data: IdentifyData;
     if (!("userId" in params) && !("anonymousId" in params)) {
       const anonymousData: AnonymousIdentifyData = {
         ...params,
-        anonymousId: this.instance.getAnonymousId(),
+        anonymousId: this.getAnonymousId(),
       };
+      data = anonymousData;
+    } else {
+      data = params;
     }
-    return this.instance.identify(params);
-  }
-
-  public identify(params: IdentifyData) {
-    return this.baseSdk.identify(params);
+    return this.baseSdk.identify(data);
   }
 
   /**

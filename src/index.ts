@@ -66,37 +66,64 @@ export class DittofeedSdk {
   private static instance: DittofeedSdk | null = null;
   private baseSdk: DittofeedSdkBase<TimeoutHandle>;
 
+  private static createBaseSdk(
+    initParams: InitParamsDataBase
+  ): DittofeedSdkBase<TimeoutHandle> {
+    return new DittofeedSdkBase({
+      uuid: () => uuidv4(),
+      issueRequest: async (
+        data,
+        { host = "https://dittofeed.com", writeKey }
+      ) => {
+        const url = `${host}/api/public/apps/batch`;
+        const headers = {
+          authorization: writeKey,
+          "Content-Type": "application/json",
+        };
+
+        const response = await fetch(url, {
+          method: "POST",
+          headers: headers,
+          body: JSON.stringify(data),
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+      },
+      setTimeout: (callback, timeout) => window.setTimeout(callback, timeout),
+      clearTimeout: (timeoutHandle) => window.clearTimeout(timeoutHandle),
+      ...initParams,
+    });
+  }
+
+  /**
+   * Initializes the Dittofeed SDK with the provided initialization parameters.
+   * If an instance of the SDK already exists, it returns the existing instance.
+   * Otherwise, it creates a new instance using the provided parameters.
+   *
+   * @param initParams - The initialization parameters required to set up the SDK.
+   * @returns A promise that resolves to the initialized Dittofeed SDK instance.
+   */
   static async init(initParams: InitParamsDataBase): Promise<DittofeedSdk> {
     if (!DittofeedSdk.instance) {
-      const baseSdk = new DittofeedSdkBase({
-        uuid: () => uuidv4(),
-        issueRequest: async (
-          data,
-          { host = "https://dittofeed.com", writeKey }
-        ) => {
-          const url = `${host}/api/public/apps/batch`;
-          const headers = {
-            authorization: writeKey,
-            "Content-Type": "application/json",
-          };
-
-          const response = await fetch(url, {
-            method: "POST",
-            headers: headers,
-            body: JSON.stringify(data),
-          });
-
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-          }
-        },
-        setTimeout: (callback, timeout) => window.setTimeout(callback, timeout),
-        clearTimeout: (timeoutHandle) => window.clearTimeout(timeoutHandle),
-        ...initParams,
-      });
+      const baseSdk = this.createBaseSdk(initParams);
       DittofeedSdk.instance = new DittofeedSdk(baseSdk);
     }
     return DittofeedSdk.instance;
+  }
+
+  /**
+   * Initializes a new instance of the Dittofeed SDK with the provided initialization parameters.
+   * Unlike the `init` method, this method always creates a new instance of the SDK, regardless
+   * of whether an instance already exists.
+   *
+   * @param initParams - The initialization parameters required to set up the SDK.
+   * @returns A promise that resolves to the newly initialized Dittofeed SDK instance.
+   */
+  static async initNew(initParams: InitParamsDataBase): Promise<DittofeedSdk> {
+    const baseSdk = this.createBaseSdk(initParams);
+    return new DittofeedSdk(baseSdk);
   }
 
   constructor(baseSdk: DittofeedSdkBase<TimeoutHandle>) {

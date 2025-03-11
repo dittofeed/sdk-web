@@ -278,6 +278,11 @@ export class DittofeedSdk {
    * @returns The anonymous ID or null if it is not stored.
    */
   private retrieveStoredAnonymousId(): string | null {
+    // Early return if not in browser environment
+    if (!DittofeedSdk.isBrowserEnvironment()) {
+      return null;
+    }
+
     // Try to get from cookie first
     const cookies = document.cookie.split(";");
     for (const cookie of cookies) {
@@ -323,6 +328,11 @@ export class DittofeedSdk {
    * @param anonymousId - The anonymous ID to store.
    */
   private storeAnonymousId(anonymousId: string) {
+    // Early return if not in browser environment
+    if (!DittofeedSdk.isBrowserEnvironment()) {
+      return;
+    }
+
     // Store in cookie with 2-year expiration
     const twoYearsFromNow = new Date();
     twoYearsFromNow.setFullYear(twoYearsFromNow.getFullYear() + 2);
@@ -355,6 +365,11 @@ export class DittofeedSdk {
   private deleteAnonymousId() {
     this.anonymousId = null;
 
+    // Early return if not in browser environment
+    if (!DittofeedSdk.isBrowserEnvironment()) {
+      return;
+    }
+
     // Delete from cookie
     try {
       document.cookie = `${DittofeedSdk.ANONYMOUS_ID}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;SameSite=Lax`;
@@ -375,5 +390,15 @@ export class DittofeedSdk {
     } catch (error) {
       this.logger?.warn("Failed to access sessionStorage:", error);
     }
+  }
+
+  /**
+   * Determines if the code is running in a browser environment
+   * where DOM APIs like document, localStorage, etc. are available.
+   *
+   * @returns {boolean} True if running in a browser environment, false otherwise.
+   */
+  private static isBrowserEnvironment(): boolean {
+    return typeof window !== "undefined" && typeof document !== "undefined";
   }
 }

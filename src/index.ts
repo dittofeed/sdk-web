@@ -66,8 +66,9 @@ export class DittofeedSdk {
   private static instance: DittofeedSdk | null = null;
   private baseSdk: DittofeedSdkBase<TimeoutHandle>;
   private anonymousId: string | null = null;
-  // 2 years
-  private cookieExpirationDays: number = 730;
+
+  // Storage key constants
+  private static readonly ANONYMOUS_ID = "DfAnonymousId";
 
   private static createBaseSdk(
     initParams: InitParamsDataBase
@@ -261,11 +262,48 @@ export class DittofeedSdk {
    * Retrieves the anonymous ID from the storage.
    * It uses the following priority:
    * cookies → localStorage → sessionStorage
-   * Cookies expire after cookieExpirationDays.
+   * Cookies expire after 2 years.
    * @returns The anonymous ID or null if it is not stored.
    */
   private retrieveStoredAnonymousId(): string | null {
-    throw new Error("Not implemented");
+    // Try to get from cookie first
+    const cookies = document.cookie.split(";");
+    for (const cookie of cookies) {
+      const parts = cookie.trim().split("=");
+      if (
+        parts.length >= 2 &&
+        parts[0] === DittofeedSdk.ANONYMOUS_ID &&
+        parts[1] !== undefined
+      ) {
+        return decodeURIComponent(parts[1]);
+      }
+    }
+
+    // Try localStorage second
+    try {
+      const localStorageValue = localStorage.getItem(DittofeedSdk.ANONYMOUS_ID);
+      if (localStorageValue) {
+        return localStorageValue;
+      }
+    } catch (error) {
+      // localStorage might be disabled or unavailable
+      console.warn("Failed to access localStorage:", error);
+    }
+
+    // Try sessionStorage last
+    try {
+      const sessionStorageValue = sessionStorage.getItem(
+        DittofeedSdk.ANONYMOUS_ID
+      );
+      if (sessionStorageValue) {
+        return sessionStorageValue;
+      }
+    } catch (error) {
+      // sessionStorage might be disabled or unavailable
+      console.warn("Failed to access sessionStorage:", error);
+    }
+
+    return null;
   }
 
   /**
@@ -273,11 +311,57 @@ export class DittofeedSdk {
    * @param anonymousId - The anonymous ID to store.
    */
   private storeAnonymousId(anonymousId: string) {
-    throw new Error("Not implemented");
+    // Store in cookie with 2-year expiration
+    const twoYearsFromNow = new Date();
+    twoYearsFromNow.setFullYear(twoYearsFromNow.getFullYear() + 2);
+    const encodedAnonymousId = encodeURIComponent(anonymousId);
+    const cookieValue = `${
+      DittofeedSdk.ANONYMOUS_ID
+    }=${encodedAnonymousId};expires=${twoYearsFromNow.toUTCString()};path=/;SameSite=Lax`;
+
+    try {
+      document.cookie = cookieValue;
+    } catch (error) {
+      console.warn("Failed to set cookie:", error);
+    }
+
+    // Store in localStorage as fallback
+    try {
+      localStorage.setItem(DittofeedSdk.ANONYMOUS_ID, anonymousId);
+    } catch (error) {
+      console.warn("Failed to access localStorage:", error);
+    }
+
+    // Store in sessionStorage as another fallback
+    try {
+      sessionStorage.setItem(DittofeedSdk.ANONYMOUS_ID, anonymousId);
+    } catch (error) {
+      console.warn("Failed to access sessionStorage:", error);
+    }
   }
 
   private deleteAnonymousId() {
     this.anonymousId = null;
-    throw new Error("Not implemented");
+
+    // Delete from cookie
+    try {
+      document.cookie = `${DittofeedSdk.ANONYMOUS_ID}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;SameSite=Lax`;
+    } catch (error) {
+      console.warn("Failed to delete cookie:", error);
+    }
+
+    // Delete from localStorage
+    try {
+      localStorage.removeItem(DittofeedSdk.ANONYMOUS_ID);
+    } catch (error) {
+      console.warn("Failed to access localStorage:", error);
+    }
+
+    // Delete from sessionStorage
+    try {
+      sessionStorage.removeItem(DittofeedSdk.ANONYMOUS_ID);
+    } catch (error) {
+      console.warn("Failed to access sessionStorage:", error);
+    }
   }
 }

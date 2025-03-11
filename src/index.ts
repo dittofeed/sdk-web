@@ -9,6 +9,10 @@ import {
   AnonymousIdentifyData,
   BaseTrackData,
   AnonymousTrackData,
+  BasePageData,
+  AnonymousPageData,
+  BaseScreenData,
+  AnonymousScreenData,
 } from "@dittofeed/sdk-js-base";
 import { v4 as uuidv4 } from "uuid";
 
@@ -212,15 +216,25 @@ export class DittofeedSdk {
    * @param params
    * @returns
    */
-  public static page(params: PageData) {
+  public static page(params: PageData | BasePageData) {
     if (!this.instance) {
       return;
     }
     return this.instance.page(params);
   }
 
-  public page(params: PageData) {
-    return this.baseSdk.page(params);
+  public page(params: PageData | BasePageData) {
+    let data: PageData;
+    if (!("anonymousId" in params) && !("userId" in params)) {
+      const anonymousData: AnonymousPageData = {
+        ...params,
+        anonymousId: this.getAnonymousId(),
+      };
+      data = anonymousData;
+    } else {
+      data = params;
+    }
+    return this.baseSdk.page(data);
   }
 
   /**
@@ -230,15 +244,25 @@ export class DittofeedSdk {
    * @param params
    * @returns
    */
-  public static screen(params: ScreenData) {
+  public static screen(params: ScreenData | BaseScreenData) {
     if (!this.instance) {
       return;
     }
     return this.instance.screen(params);
   }
 
-  public screen(params: ScreenData) {
-    return this.baseSdk.screen(params);
+  public screen(params: ScreenData | BaseScreenData) {
+    let data: ScreenData;
+    if (!("anonymousId" in params) && !("userId" in params)) {
+      const anonymousData: AnonymousScreenData = {
+        ...params,
+        anonymousId: this.getAnonymousId(),
+      };
+      data = anonymousData;
+    } else {
+      data = params;
+    }
+    return this.baseSdk.screen(data);
   }
 
   /**

@@ -66,6 +66,8 @@ export class DittofeedSdk {
   private static instance: DittofeedSdk | null = null;
   private baseSdk: DittofeedSdkBase<TimeoutHandle>;
   private anonymousId: string | null = null;
+  // 2 years
+  private cookieExpirationDays: number = 730;
 
   private static createBaseSdk(
     initParams: InitParamsDataBase
@@ -257,6 +259,9 @@ export class DittofeedSdk {
 
   /**
    * Retrieves the anonymous ID from the storage.
+   * It uses the following priority:
+   * cookies → localStorage → sessionStorage
+   * Cookies expire after cookieExpirationDays.
    * @returns The anonymous ID or null if it is not stored.
    */
   private retrieveStoredAnonymousId(): string | null {

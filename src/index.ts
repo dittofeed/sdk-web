@@ -65,6 +65,7 @@ export type TimeoutHandle = ReturnType<typeof setTimeout>;
 export class DittofeedSdk {
   private static instance: DittofeedSdk | null = null;
   private baseSdk: DittofeedSdkBase<TimeoutHandle>;
+  private anonymousId: string | null = null;
 
   private static createBaseSdk(
     initParams: InitParamsDataBase
@@ -214,5 +215,19 @@ export class DittofeedSdk {
 
   public flush() {
     return this.baseSdk.flush();
+  }
+
+  public static getAnonymousId(): string {
+    if (!this.instance) {
+      throw new Error("DittofeedSdk not initialized");
+    }
+    return this.instance.getAnonymousId();
+  }
+
+  public getAnonymousId(): string {
+    if (!this.anonymousId) {
+      this.anonymousId = uuidv4();
+    }
+    return this.anonymousId;
   }
 }

@@ -13,6 +13,9 @@ import {
   AnonymousPageData,
   BaseScreenData,
   AnonymousScreenData,
+  BaseSubscribeData,
+  SubscribeData,
+  AnonymousSubscribeData,
 } from "@dittofeed/sdk-js-base";
 import { v4 as uuidv4 } from "uuid";
 
@@ -263,6 +266,58 @@ export class DittofeedSdk {
       data = params;
     }
     return this.baseSdk.screen(data);
+  }
+
+  /**
+   * A convenience method for subscribing a user to a subscription group.
+   * @param params
+   * @returns
+   */
+  public static subscribe(params: SubscribeData | BaseSubscribeData) {
+    if (!this.instance) {
+      return;
+    }
+    return this.instance.subscribe(params);
+  }
+
+  public subscribe(params: SubscribeData | BaseSubscribeData) {
+    let data: SubscribeData;
+    if (!("anonymousId" in params) && !("userId" in params)) {
+      const anonymousData: AnonymousSubscribeData = {
+        ...params,
+        anonymousId: this.getAnonymousId(),
+      };
+      data = anonymousData;
+    } else {
+      data = params;
+    }
+    return this.baseSdk.subscribe(data);
+  }
+
+  /**
+   * A convenience method for unsubscribing a user from a subscription group.
+   * @param params
+   * @returns
+   */
+  public static unsubscribe(params: SubscribeData | BaseSubscribeData) {
+    if (!this.instance) {
+      return;
+    }
+    return this.instance.unsubscribe(params);
+  }
+
+  public unsubscribe(params: SubscribeData | BaseSubscribeData) {
+    let data: SubscribeData;
+    if (!("anonymousId" in params) && !("userId" in params)) {
+      const anonymousData: AnonymousSubscribeData = {
+        ...params,
+        anonymousId: this.getAnonymousId(),
+      };
+      data = anonymousData;
+    } else {
+      data = params;
+    }
+    return this.baseSdk.unsubscribe(data);
   }
 
   /**

@@ -55,10 +55,49 @@ DittofeedSdk.screen({
   },
 });
 
+// Lets you subscribe a user to a subscription group.
+DittofeedSdk.subscribe({
+  userId: "123",
+  subscriptionGroupId: "23b5757f-15a5-4477-858f-a96913b2a3f1",
+});
+
+// Lets you unsubscribe a user from a subscription group.
+DittofeedSdk.unsubscribe({
+  userId: "123",
+  subscriptionGroupId: "23b5757f-15a5-4477-858f-a96913b2a3f1",
+});
+
 // Ensures that asynchronously submitted events are flushed synchronously
 // to Dittofeed's API.
 await DittofeedSdk.flush();
 ```
+
+### Anonymous Users
+
+The SDK will automatically generate an anonymous ID for users who are not logged in. This ID is stored in the user's browser and is used to track them across different sessions.
+
+You can submit events with the anonymous ID using any of the methods that accept a `userId` parameter, by omitting the `userId` parameter.
+
+```typescript
+DittofeedSdk.identify({
+  traits: {
+    email: "john@email.com",
+  },
+});
+```
+
+You can access the anonymous ID using the `getAnonymousId` method.
+
+```typescript
+const anonymousId = DittofeedSdk.getAnonymousId();
+```
+
+You can also reset the anonymous ID using the `resetAnonymousId` method.
+
+```typescript
+DittofeedSdk.resetAnonymousId();
+```
+
 
 ### Install the Snippet
 
@@ -71,7 +110,7 @@ This is convenient if you want to use the Dittofeed SDK without a build system e
   var _df = _df || [];
 
   (function () {
-    var methods = ["track", "identify", "page", "flush"];
+    var methods = ["track", "identify", "page", "flush", "subscribe", "unsubscribe", "getAnonymousId", "resetAnonymousId"];
     methods.forEach(function (method) {
       _df[method] = function () {
         _df.push([method].concat(Array.prototype.slice.call(arguments)));
@@ -84,10 +123,10 @@ This is convenient if you want to use the Dittofeed SDK without a build system e
 
     // If you're self-hosting the Dittofeed dashboard, you'll need to to
     // specificy your own host.
-    script.src = "https://dittofeed.com/dashboard/public/dittofeed.umd.js";
+    script.src = "https://app.dittofeed.com/dashboard/public/dittofeed.umd.js";
 
     script.id = "df-tracker";
-    // Replace with your own write key found on: https://dittofeed.com/dashboard/dittofeed.umd.js
+    // Replace with your own write key found on: https://app.dittofeed.com/dashboard/dittofeed.umd.js
     script.setAttribute("data-write-key", "Basic my-write-key");
     // If you're self-hosting dittofeed, you'll need to to specificy your own host.
     // script.setAttribute("data-host", "http://localhost:3001");
@@ -100,4 +139,5 @@ This is convenient if you want to use the Dittofeed SDK without a build system e
     email: "test@email.com"
   });
 </script>
+
 ```

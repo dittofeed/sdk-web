@@ -200,6 +200,11 @@
       </div>
       
       <div class="form-group">
+        <label for="subscription-group">Subscription Group (for subscribe/unsubscribe):</label>
+        <input type="text" id="subscription-group" placeholder="e.g., marketing-emails">
+      </div>
+      
+      <div class="form-group">
         <label for="properties">Properties (JSON):</label>
         <textarea id="properties" rows="3" placeholder='{"key": "value"}'></textarea>
       </div>
@@ -209,6 +214,8 @@
         <button id="track-btn">Track</button>
         <button id="page-btn">Page</button>
         <button id="screen-btn">Screen</button>
+        <button id="subscribe-btn">Subscribe</button>
+        <button id="unsubscribe-btn">Unsubscribe</button>
         <button id="flush-btn">Flush</button>
         <button id="reset-anonymous-btn">Reset Anonymous ID</button>
       </div>
@@ -216,32 +223,70 @@
       <div id="response" class="response"></div>
     </div>
 
+
     <script type="text/javascript">
+      // The following is the standard Dittofeed snippet from documentation,
       var _df = _df || [];
-      var dfInitialized = false;
 
       (function () {
-        var methods = ["track", "identify", "page", "screen", "flush", "getAnonymousId", "resetAnonymousId"];
+        var methods = ["track", "identify", "page", "flush", "subscribe", "unsubscribe", "getAnonymousId", "resetAnonymousId"];
         methods.forEach(function (method) {
           _df[method] = function () {
             _df.push([method].concat(Array.prototype.slice.call(arguments)));
           };
         });
 
+        const config = window.DITTOFEED_CONFIG || {};
+
         var script = document.createElement("script");
         script.type = "module";
         script.async = true;
-        script.src = "http://localhost:5173/src/snippetEntry.js"; // URL where Vite serves your file
-
-        script.id = "df-tracker";
         script.setAttribute("data-host", "http://localhost:3001");
-
-        // Listen for initialization error
-        script.addEventListener('error', function() {
-          document.getElementById('error-banner').style.display = 'block';
-        });
-
+        script.setAttribute("data-write-key", "Basic PLACEHOLDER_WRITE_KEY");
+        script.id = "df-tracker";
+        script.src = "http://localhost:5173/src/snippetEntry.js";
+        
+        
         document.head.appendChild(script);
+      })();
+      
+      // Additional application-specific code starts here
+      // ---------------------------------------------------
+      
+      var dfInitialized = false;
+
+      // Helper function to update anonymous ID display
+      function updateAnonymousIdDisplay() {
+        const anonymousIdEl = document.getElementById('current-anonymous-id');
+        
+        if (dfInitialized && typeof _df.getAnonymousId === 'function') {
+          try {
+            console.log("Attempting to get anonymous ID...");
+            const anonymousId = _df.getAnonymousId();
+            console.log("Retrieved anonymous ID:", anonymousId);
+            anonymousIdEl.textContent = anonymousId || 'No ID available';
+          } catch (err) {
+            console.error("Error getting anonymous ID:", err);
+            anonymousIdEl.textContent = 'Error retrieving ID: ' + err.message;
+          }
+        } else {
+          console.log("SDK not ready for getAnonymousId:", { 
+            initialized: dfInitialized, 
+            hasMethod: typeof _df.getAnonymousId === 'function' 
+          });
+          anonymousIdEl.textContent = 'SDK not fully initialized yet...';
+        }
+      }
+
+      // Initialization and error handling
+      (function() {
+        // Listen for initialization error
+        const dfScript = document.getElementById('df-tracker');
+        if (dfScript) {
+          dfScript.addEventListener('error', function() {
+            document.getElementById('error-banner').style.display = 'block';
+          });
+        }
         
         // Check when the SDK is fully loaded
         var checkInterval = setInterval(function() {
@@ -261,7 +306,7 @@
         }, 5000);
       })();
 
-      // Wait for SDK to initialize
+      // UI interaction and event handlers
       document.addEventListener('DOMContentLoaded', function() {
         // Helper function to show response
         function showResponse(message) {
@@ -283,29 +328,6 @@
           } catch (e) {
             showResponse('Error parsing properties JSON');
             return {};
-          }
-        }
-        
-        // Helper function to update anonymous ID display
-        function updateAnonymousIdDisplay() {
-          const anonymousIdEl = document.getElementById('current-anonymous-id');
-          
-          if (dfInitialized && typeof _df.getAnonymousId === 'function') {
-            try {
-              console.log("Attempting to get anonymous ID...");
-              const anonymousId = _df.getAnonymousId();
-              console.log("Retrieved anonymous ID:", anonymousId);
-              anonymousIdEl.textContent = anonymousId || 'No ID available';
-            } catch (err) {
-              console.error("Error getting anonymous ID:", err);
-              anonymousIdEl.textContent = 'Error retrieving ID: ' + err.message;
-            }
-          } else {
-            console.log("SDK not ready for getAnonymousId:", { 
-              initialized: dfInitialized, 
-              hasMethod: typeof _df.getAnonymousId === 'function' 
-            });
-            anonymousIdEl.textContent = 'SDK not fully initialized yet...';
           }
         }
         
@@ -398,6 +420,50 @@
           }
           
           showResponse(`Screen called: ${screenName}`);
+        });
+
+        // Subscribe Button
+        document.getElementById('subscribe-btn').addEventListener('click', function() {
+          const useIdentified = document.getElementById('use-identified').checked;
+          const subscriptionGroup = document.getElementById('subscription-group').value.trim() || 'marketing-emails';
+          const properties = getProperties();
+          
+          if (useIdentified) {
+            _df.subscribe({
+              userId: "user-sdk-web",
+              subscriptionGroupId: subscriptionGroup,
+              properties: properties
+            });
+          } else {
+            _df.subscribe({
+              subscriptionGroupId: subscriptionGroup,
+              properties: properties
+            });
+          }
+          
+          showResponse(`Subscribed to group: ${subscriptionGroup}`);
+        });
+
+        // Unsubscribe Button
+        document.getElementById('unsubscribe-btn').addEventListener('click', function() {
+          const useIdentified = document.getElementById('use-identified').checked;
+          const subscriptionGroup = document.getElementById('subscription-group').value.trim() || 'marketing-emails';
+          const properties = getProperties();
+          
+          if (useIdentified) {
+            _df.unsubscribe({
+              userId: "user-sdk-web",
+              subscriptionGroupId: subscriptionGroup,
+              properties: properties
+            });
+          } else {
+            _df.unsubscribe({
+              subscriptionGroupId: subscriptionGroup,
+              properties: properties
+            });
+          }
+          
+          showResponse(`Unsubscribed from group: ${subscriptionGroup}`);
         });
 
         // Flush Button

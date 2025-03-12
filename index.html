@@ -200,6 +200,11 @@
       </div>
       
       <div class="form-group">
+        <label for="subscription-group">Subscription Group (for subscribe/unsubscribe):</label>
+        <input type="text" id="subscription-group" placeholder="e.g., marketing-emails">
+      </div>
+      
+      <div class="form-group">
         <label for="properties">Properties (JSON):</label>
         <textarea id="properties" rows="3" placeholder='{"key": "value"}'></textarea>
       </div>
@@ -209,6 +214,8 @@
         <button id="track-btn">Track</button>
         <button id="page-btn">Page</button>
         <button id="screen-btn">Screen</button>
+        <button id="subscribe-btn">Subscribe</button>
+        <button id="unsubscribe-btn">Unsubscribe</button>
         <button id="flush-btn">Flush</button>
         <button id="reset-anonymous-btn">Reset Anonymous ID</button>
       </div>
@@ -221,7 +228,7 @@
       var dfInitialized = false;
 
       (function () {
-        var methods = ["track", "identify", "page", "screen", "flush", "getAnonymousId", "resetAnonymousId"];
+        var methods = ["track", "identify", "page", "screen", "flush", "getAnonymousId", "resetAnonymousId", "subscribe", "unsubscribe"];
         methods.forEach(function (method) {
           _df[method] = function () {
             _df.push([method].concat(Array.prototype.slice.call(arguments)));
@@ -398,6 +405,50 @@
           }
           
           showResponse(`Screen called: ${screenName}`);
+        });
+
+        // Subscribe Button
+        document.getElementById('subscribe-btn').addEventListener('click', function() {
+          const useIdentified = document.getElementById('use-identified').checked;
+          const subscriptionGroup = document.getElementById('subscription-group').value.trim() || 'marketing-emails';
+          const properties = getProperties();
+          
+          if (useIdentified) {
+            _df.subscribe({
+              userId: "user-sdk-web",
+              group: subscriptionGroup,
+              properties: properties
+            });
+          } else {
+            _df.subscribe({
+              group: subscriptionGroup,
+              properties: properties
+            });
+          }
+          
+          showResponse(`Subscribed to group: ${subscriptionGroup}`);
+        });
+
+        // Unsubscribe Button
+        document.getElementById('unsubscribe-btn').addEventListener('click', function() {
+          const useIdentified = document.getElementById('use-identified').checked;
+          const subscriptionGroup = document.getElementById('subscription-group').value.trim() || 'marketing-emails';
+          const properties = getProperties();
+          
+          if (useIdentified) {
+            _df.unsubscribe({
+              userId: "user-sdk-web",
+              group: subscriptionGroup,
+              properties: properties
+            });
+          } else {
+            _df.unsubscribe({
+              group: subscriptionGroup,
+              properties: properties
+            });
+          }
+          
+          showResponse(`Unsubscribed from group: ${subscriptionGroup}`);
         });
 
         // Flush Button

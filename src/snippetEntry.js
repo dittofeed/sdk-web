@@ -56,9 +56,9 @@ function getConfig() {
       init.forEach((call) => {
         if (Array.isArray(call) && call.length > 0) {
           const methodName = call[0];
-          const method = DittofeedSdk[methodName];
+          const method = sdkInstance[methodName];
           if (typeof method === "function") {
-            method.apply(DittofeedSdk, call.slice(1));
+            method.apply(sdkInstance, call.slice(1));
           } else {
             console.warn(`Method ${methodName} not found on DittofeedSdk`);
           }
@@ -66,26 +66,12 @@ function getConfig() {
       });
     }
 
-    // Create a wrapper that combines static and instance methods
-    const dfWrapper = {
-      // Static methods
-      identify: DittofeedSdk.identify.bind(DittofeedSdk),
-      track: DittofeedSdk.track.bind(DittofeedSdk),
-      page: DittofeedSdk.page.bind(DittofeedSdk),
-      screen: DittofeedSdk.screen.bind(DittofeedSdk),
-      flush: DittofeedSdk.flush.bind(DittofeedSdk),
-
-      // Static methods for anonymous ID
-      getAnonymousId: DittofeedSdk.getAnonymousId.bind(DittofeedSdk),
-      resetAnonymousId: DittofeedSdk.resetAnonymousId.bind(DittofeedSdk),
-    };
-
-    // Replace the stubs with our wrapper
-    window._df = dfWrapper;
+    // Replace the queue with the actual SDK instance
+    window._df = sdkInstance;
 
     console.log(
       "DittofeedSdk initialized successfully with methods:",
-      Object.keys(dfWrapper)
+      Object.keys(sdkInstance)
     );
   } catch (error) {
     console.error("Failed to initialize DittofeedSdk:", error);

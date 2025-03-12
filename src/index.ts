@@ -132,7 +132,6 @@ export class DittofeedSdk {
    * @returns A promise that resolves to the initialized Dittofeed SDK instance.
    */
   static async init(initParams: InitParamsData): Promise<DittofeedSdk> {
-    console.log("init", initParams);
     if (!DittofeedSdk.instance) {
       const baseSdk = this.createBaseSdk(initParams);
       DittofeedSdk.instance = new DittofeedSdk(baseSdk, initParams.logger);
@@ -292,7 +291,6 @@ export class DittofeedSdk {
     } else {
       data = params;
     }
-    console.log("subscribe outer", data);
     return this.baseSdk.subscribe(data);
   }
 

@@ -223,12 +223,9 @@
       <div id="response" class="response"></div>
     </div>
 
-    <!-- Load config values from config.js -->
-    <script type="module" async=false src="./src/config.js"></script>
 
     <script type="text/javascript">
       // The following is the standard Dittofeed snippet from documentation,
-      // with minimal changes to pull the write key from config.js
       var _df = _df || [];
 
       (function () {
@@ -239,16 +236,16 @@
           };
         });
 
+        const config = window.DITTOFEED_CONFIG || {};
+
         var script = document.createElement("script");
         script.type = "module";
         script.async = true;
-        script.src = "http://localhost:5173/src/snippetEntry.js";
+        script.setAttribute("data-host", "http://localhost:3001");
+        script.setAttribute("data-write-key", "Basic PLACEHOLDER_WRITE_KEY");
         script.id = "df-tracker";
+        script.src = "http://localhost:5173/src/snippetEntry.js";
         
-        // Get values from config (directly imported from src/config.js)
-        const config = window.DITTOFEED_CONFIG || {};
-        script.setAttribute("data-host", config.API_HOST || "http://localhost:3001");
-        script.setAttribute("data-write-key", "Basic " + (config.DITTOFEED_WRITE_KEY || ""));
         
         document.head.appendChild(script);
       })();

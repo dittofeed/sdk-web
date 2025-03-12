@@ -291,6 +291,7 @@ export class DittofeedSdk {
     } else {
       data = params;
     }
+    console.log("subscribe outer", data);
     return this.baseSdk.subscribe(data);
   }
 

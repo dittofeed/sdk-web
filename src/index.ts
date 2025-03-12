@@ -5,12 +5,30 @@ import {
   TrackData,
   ScreenData,
   PageData,
+  BaseIdentifyData,
+  AnonymousIdentifyData,
+  BaseTrackData,
+  AnonymousTrackData,
+  BasePageData,
+  AnonymousPageData,
+  BaseScreenData,
+  AnonymousScreenData,
 } from "@dittofeed/sdk-js-base";
 import { v4 as uuidv4 } from "uuid";
 
 export * from "@dittofeed/sdk-js-base";
 
+export type Logger = {
+  log: (message: string, ...args: any[]) => void;
+  warn: (message: string, ...args: any[]) => void;
+  error: (message: string, ...args: any[]) => void;
+};
+
 export type TimeoutHandle = ReturnType<typeof setTimeout>;
+
+export interface InitParamsData extends InitParamsDataBase {
+  logger?: Logger;
+}
 
 /**
  * Dittofeed web SDK, used to send events to Dittofeed from the browser, an open source
@@ -65,6 +83,11 @@ export type TimeoutHandle = ReturnType<typeof setTimeout>;
 export class DittofeedSdk {
   private static instance: DittofeedSdk | null = null;
   private baseSdk: DittofeedSdkBase<TimeoutHandle>;
+  private anonymousId: string | null = null;
+  private logger: Logger | null = null;
+
+  // Storage key constants
+  private static readonly ANONYMOUS_ID = "DfAnonymousId";
 
   private static createBaseSdk(
     initParams: InitParamsDataBase
@@ -105,10 +128,10 @@ export class DittofeedSdk {
    * @param initParams - The initialization parameters required to set up the SDK.
    * @returns A promise that resolves to the initialized Dittofeed SDK instance.
    */
-  static async init(initParams: InitParamsDataBase): Promise<DittofeedSdk> {
+  static async init(initParams: InitParamsData): Promise<DittofeedSdk> {
     if (!DittofeedSdk.instance) {
       const baseSdk = this.createBaseSdk(initParams);
-      DittofeedSdk.instance = new DittofeedSdk(baseSdk);
+      DittofeedSdk.instance = new DittofeedSdk(baseSdk, initParams.logger);
     }
     return DittofeedSdk.instance;
   }
@@ -121,13 +144,14 @@ export class DittofeedSdk {
    * @param initParams - The initialization parameters required to set up the SDK.
    * @returns A promise that resolves to the newly initialized Dittofeed SDK instance.
    */
-  static async initNew(initParams: InitParamsDataBase): Promise<DittofeedSdk> {
+  static async initNew(initParams: InitParamsData): Promise<DittofeedSdk> {
     const baseSdk = this.createBaseSdk(initParams);
-    return new DittofeedSdk(baseSdk);
+    return new DittofeedSdk(baseSdk, initParams.logger);
   }
 
-  constructor(baseSdk: DittofeedSdkBase<TimeoutHandle>) {
+  constructor(baseSdk: DittofeedSdkBase<TimeoutHandle>, logger?: Logger) {
     this.baseSdk = baseSdk;
+    this.logger = logger ?? null;
   }
 
   /**
@@ -137,15 +161,26 @@ export class DittofeedSdk {
    * @param params
    * @returns
    */
-  public static identify(params: IdentifyData) {
+  public static identify(params: IdentifyData | BaseIdentifyData) {
     if (!this.instance) {
       return;
     }
+
     return this.instance.identify(params);
   }
 
-  public identify(params: IdentifyData) {
-    return this.baseSdk.identify(params);
+  public identify(params: IdentifyData | BaseIdentifyData) {
+    let data: IdentifyData;
+    if (!("userId" in params) && !("anonymousId" in params)) {
+      const anonymousData: AnonymousIdentifyData = {
+        ...params,
+        anonymousId: this.getAnonymousId(),
+      };
+      data = anonymousData;
+    } else {
+      data = params;
+    }
+    return this.baseSdk.identify(data);
   }
 
   /**
@@ -154,15 +189,25 @@ export class DittofeedSdk {
    * @param params
    * @returns
    */
-  public static track(params: TrackData) {
+  public static track(params: TrackData | BaseTrackData) {
     if (!this.instance) {
       return;
     }
     return this.instance.track(params);
   }
 
-  public track(params: TrackData) {
-    return this.baseSdk.track(params);
+  public track(params: TrackData | BaseTrackData) {
+    let data: TrackData;
+    if (!("anonymousId" in params) && !("userId" in params)) {
+      const anonymousData: AnonymousTrackData = {
+        ...params,
+        anonymousId: this.getAnonymousId(),
+      };
+      data = anonymousData;
+    } else {
+      data = params;
+    }
+    return this.baseSdk.track(data);
   }
 
   /**
@@ -171,15 +216,25 @@ export class DittofeedSdk {
    * @param params
    * @returns
    */
-  public static page(params: PageData) {
+  public static page(params: PageData | BasePageData) {
     if (!this.instance) {
       return;
     }
     return this.instance.page(params);
   }
 
-  public page(params: PageData) {
-    return this.baseSdk.page(params);
+  public page(params: PageData | BasePageData) {
+    let data: PageData;
+    if (!("anonymousId" in params) && !("userId" in params)) {
+      const anonymousData: AnonymousPageData = {
+        ...params,
+        anonymousId: this.getAnonymousId(),
+      };
+      data = anonymousData;
+    } else {
+      data = params;
+    }
+    return this.baseSdk.page(data);
   }
 
   /**
@@ -189,15 +244,25 @@ export class DittofeedSdk {
    * @param params
    * @returns
    */
-  public static screen(params: ScreenData) {
+  public static screen(params: ScreenData | BaseScreenData) {
     if (!this.instance) {
       return;
     }
     return this.instance.screen(params);
   }
 
-  public screen(params: ScreenData) {
-    return this.baseSdk.screen(params);
+  public screen(params: ScreenData | BaseScreenData) {
+    let data: ScreenData;
+    if (!("anonymousId" in params) && !("userId" in params)) {
+      const anonymousData: AnonymousScreenData = {
+        ...params,
+        anonymousId: this.getAnonymousId(),
+      };
+      data = anonymousData;
+    } else {
+      data = params;
+    }
+    return this.baseSdk.screen(data);
   }
 
   /**
@@ -214,5 +279,175 @@ export class DittofeedSdk {
 
   public flush() {
     return this.baseSdk.flush();
+  }
+
+  public static getAnonymousId(): string {
+    if (!this.instance) {
+      throw new Error("DittofeedSdk not initialized");
+    }
+    return this.instance.getAnonymousId();
+  }
+
+  /**
+   * Initializes the anonymous ID if it is not already set and returns it.
+   * @returns The anonymous ID.
+   */
+  public getAnonymousId(): string {
+    if (!this.anonymousId) {
+      const storedAnonymousId = this.retrieveStoredAnonymousId();
+      let anonymousId: string;
+      if (storedAnonymousId) {
+        anonymousId = storedAnonymousId;
+      } else {
+        anonymousId = uuidv4();
+        this.storeAnonymousId(anonymousId);
+      }
+      this.anonymousId = anonymousId;
+    }
+    return this.anonymousId;
+  }
+
+  /**
+   * Resets the anonymous ID and returns the new one.
+   * @returns The new anonymous ID.
+   */
+  public resetAnonymousId(): string {
+    if (!this.anonymousId) {
+      return this.getAnonymousId();
+    }
+    this.deleteAnonymousId();
+    return this.getAnonymousId();
+  }
+
+  /**
+   * Retrieves the anonymous ID from the storage.
+   * It uses the following priority:
+   * cookies → localStorage → sessionStorage
+   * Cookies expire after 2 years.
+   * @returns The anonymous ID or null if it is not stored.
+   */
+  private retrieveStoredAnonymousId(): string | null {
+    // Early return if not in browser environment
+    if (!DittofeedSdk.isBrowserEnvironment()) {
+      return null;
+    }
+
+    // Try to get from cookie first
+    const cookies = document.cookie.split(";");
+    for (const cookie of cookies) {
+      const parts = cookie.trim().split("=");
+      if (
+        parts.length >= 2 &&
+        parts[0] === DittofeedSdk.ANONYMOUS_ID &&
+        parts[1] !== undefined
+      ) {
+        return decodeURIComponent(parts[1]);
+      }
+    }
+
+    // Try localStorage second
+    try {
+      const localStorageValue = localStorage.getItem(DittofeedSdk.ANONYMOUS_ID);
+      if (localStorageValue) {
+        return localStorageValue;
+      }
+    } catch (error) {
+      // localStorage might be disabled or unavailable
+      this.logger?.warn("Failed to access localStorage:", error);
+    }
+
+    // Try sessionStorage last
+    try {
+      const sessionStorageValue = sessionStorage.getItem(
+        DittofeedSdk.ANONYMOUS_ID
+      );
+      if (sessionStorageValue) {
+        return sessionStorageValue;
+      }
+    } catch (error) {
+      // sessionStorage might be disabled or unavailable
+      this.logger?.warn("Failed to access sessionStorage:", error);
+    }
+
+    return null;
+  }
+
+  /**
+   * Stores the anonymous ID.
+   * @param anonymousId - The anonymous ID to store.
+   */
+  private storeAnonymousId(anonymousId: string) {
+    // Early return if not in browser environment
+    if (!DittofeedSdk.isBrowserEnvironment()) {
+      return;
+    }
+
+    // Store in cookie with 2-year expiration
+    const twoYearsFromNow = new Date();
+    twoYearsFromNow.setFullYear(twoYearsFromNow.getFullYear() + 2);
+    const encodedAnonymousId = encodeURIComponent(anonymousId);
+    const cookieValue = `${
+      DittofeedSdk.ANONYMOUS_ID
+    }=${encodedAnonymousId};expires=${twoYearsFromNow.toUTCString()};path=/;SameSite=Lax`;
+
+    try {
+      document.cookie = cookieValue;
+    } catch (error) {
+      this.logger?.warn("Failed to set cookie:", error);
+    }
+
+    // Store in localStorage as fallback
+    try {
+      localStorage.setItem(DittofeedSdk.ANONYMOUS_ID, anonymousId);
+    } catch (error) {
+      this.logger?.warn("Failed to access localStorage:", error);
+    }
+
+    // Store in sessionStorage as another fallback
+    try {
+      sessionStorage.setItem(DittofeedSdk.ANONYMOUS_ID, anonymousId);
+    } catch (error) {
+      this.logger?.warn("Failed to access sessionStorage:", error);
+    }
+  }
+
+  private deleteAnonymousId() {
+    this.anonymousId = null;
+
+    // Early return if not in browser environment
+    if (!DittofeedSdk.isBrowserEnvironment()) {
+      return;
+    }
+
+    // Delete from cookie
+    try {
+      document.cookie = `${DittofeedSdk.ANONYMOUS_ID}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;SameSite=Lax`;
+    } catch (error) {
+      this.logger?.warn("Failed to delete cookie:", error);
+    }
+
+    // Delete from localStorage
+    try {
+      localStorage.removeItem(DittofeedSdk.ANONYMOUS_ID);
+    } catch (error) {
+      this.logger?.warn("Failed to access localStorage:", error);
+    }
+
+    // Delete from sessionStorage
+    try {
+      sessionStorage.removeItem(DittofeedSdk.ANONYMOUS_ID);
+    } catch (error) {
+      this.logger?.warn("Failed to access sessionStorage:", error);
+    }
+  }
+
+  /**
+   * Determines if the code is running in a browser environment
+   * where DOM APIs like document, localStorage, etc. are available.
+   *
+   * @returns {boolean} True if running in a browser environment, false otherwise.
+   */
+  private static isBrowserEnvironment(): boolean {
+    return typeof window !== "undefined" && typeof document !== "undefined";
   }
 }

@@ -153,6 +153,7 @@ export class DittofeedSdk {
   }
 
   constructor(baseSdk: DittofeedSdkBase<TimeoutHandle>, logger?: Logger) {
+    console.log("constructor", baseSdk, logger);
     this.baseSdk = baseSdk;
     this.logger = logger ?? null;
   }

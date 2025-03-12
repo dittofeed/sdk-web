@@ -1,0 +1,4 @@
+{
+  "DITTOFEED_WRITE_KEY": "YOUR_DITTOFEED_WRITE_KEY_HERE",
+  "API_HOST": "http://localhost:3001"
+} 

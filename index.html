@@ -227,6 +227,29 @@
       var _df = _df || [];
       var dfInitialized = false;
 
+      // Helper function to update anonymous ID display - moved to global scope
+      function updateAnonymousIdDisplay() {
+        const anonymousIdEl = document.getElementById('current-anonymous-id');
+        
+        if (dfInitialized && typeof _df.getAnonymousId === 'function') {
+          try {
+            console.log("Attempting to get anonymous ID...");
+            const anonymousId = _df.getAnonymousId();
+            console.log("Retrieved anonymous ID:", anonymousId);
+            anonymousIdEl.textContent = anonymousId || 'No ID available';
+          } catch (err) {
+            console.error("Error getting anonymous ID:", err);
+            anonymousIdEl.textContent = 'Error retrieving ID: ' + err.message;
+          }
+        } else {
+          console.log("SDK not ready for getAnonymousId:", { 
+            initialized: dfInitialized, 
+            hasMethod: typeof _df.getAnonymousId === 'function' 
+          });
+          anonymousIdEl.textContent = 'SDK not fully initialized yet...';
+        }
+      }
+
       (function () {
         var methods = ["track", "identify", "page", "screen", "flush", "getAnonymousId", "resetAnonymousId", "subscribe", "unsubscribe"];
         methods.forEach(function (method) {
@@ -290,29 +313,6 @@
           } catch (e) {
             showResponse('Error parsing properties JSON');
             return {};
-          }
-        }
-        
-        // Helper function to update anonymous ID display
-        function updateAnonymousIdDisplay() {
-          const anonymousIdEl = document.getElementById('current-anonymous-id');
-          
-          if (dfInitialized && typeof _df.getAnonymousId === 'function') {
-            try {
-              console.log("Attempting to get anonymous ID...");
-              const anonymousId = _df.getAnonymousId();
-              console.log("Retrieved anonymous ID:", anonymousId);
-              anonymousIdEl.textContent = anonymousId || 'No ID available';
-            } catch (err) {
-              console.error("Error getting anonymous ID:", err);
-              anonymousIdEl.textContent = 'Error retrieving ID: ' + err.message;
-            }
-          } else {
-            console.log("SDK not ready for getAnonymousId:", { 
-              initialized: dfInitialized, 
-              hasMethod: typeof _df.getAnonymousId === 'function' 
-            });
-            anonymousIdEl.textContent = 'SDK not fully initialized yet...';
           }
         }
         

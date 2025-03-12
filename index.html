@@ -23,7 +23,8 @@
         script.src = "http://localhost:5173/src/snippetEntry.js"; // URL where Vite serves your file
 
         script.id = "df-tracker";
-        script.setAttribute("data-write-key", "Basic my-write-key");
+        // The API key will be injected by Vite during the build process
+        script.setAttribute("data-write-key", process.env.DITTOFEED_WRITE_KEY);
         script.setAttribute("data-host", "http://localhost:3001");
 
         document.head.appendChild(script);

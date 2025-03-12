@@ -281,6 +281,10 @@ export class DittofeedSdk {
     return this.baseSdk.flush();
   }
 
+  /**
+   * Gets the current anonymous ID used for tracking when no user ID is provided.
+   * @returns The anonymous ID
+   */
   public static getAnonymousId(): string {
     if (!this.instance) {
       throw new Error("DittofeedSdk not initialized");
@@ -305,6 +309,17 @@ export class DittofeedSdk {
       this.anonymousId = anonymousId;
     }
     return this.anonymousId;
+  }
+
+  /**
+   * Resets the anonymous ID and returns the new one.
+   * @returns The new anonymous ID.
+   */
+  public static resetAnonymousId(): string {
+    if (!this.instance) {
+      throw new Error("DittofeedSdk not initialized");
+    }
+    return this.instance.resetAnonymousId();
   }
 
   /**

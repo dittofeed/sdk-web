@@ -3,14 +3,225 @@
   <head>
     <meta charset="UTF-8" />
     <title>Dittofeed Library Test</title>
+    <style>
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f8f9fa;
+        color: #333;
+      }
+      h1 {
+        color: #2563eb;
+        margin-bottom: 30px;
+        text-align: center;
+      }
+      h2 {
+        color: #1e40af;
+        margin-bottom: 20px;
+        border-bottom: 1px solid #e5e7eb;
+        padding-bottom: 10px;
+      }
+      .container {
+        background-color: white;
+        border-radius: 10px;
+        padding: 25px;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+      }
+      .btn-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 25px;
+      }
+      button {
+        padding: 12px 18px;
+        background-color: #3b82f6;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: background-color 0.2s;
+        flex: 1;
+        min-width: 120px;
+      }
+      button:hover {
+        background-color: #2563eb;
+      }
+      .form-group {
+        margin-bottom: 18px;
+      }
+      label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+        color: #4b5563;
+      }
+      input[type="text"], textarea {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        font-family: inherit;
+        font-size: 16px;
+      }
+      input[type="checkbox"] {
+        margin-right: 8px;
+      }
+      .response {
+        margin-top: 25px;
+        padding: 15px;
+        background-color: #ecfdf5;
+        border-left: 4px solid #10b981;
+        border-radius: 4px;
+        display: none;
+        font-weight: 500;
+      }
+      .checkbox-container {
+        background-color: #eff6ff;
+        padding: 12px;
+        border-radius: 6px;
+        margin-bottom: 20px;
+        border: 1px solid #dbeafe;
+      }
+      .checkbox-label {
+        display: flex;
+        align-items: center;
+        font-weight: 500;
+        margin-bottom: 0;
+      }
+      .anonymous-id-container {
+        background-color: #fffbeb;
+        padding: 15px;
+        border-radius: 6px;
+        margin: 20px 0;
+        border: 1px solid #fef3c7;
+      }
+      .anonymous-id-label {
+        font-weight: 500;
+        color: #92400e;
+        margin-bottom: 5px;
+        display: block;
+      }
+      .anonymous-id {
+        font-family: monospace;
+        word-break: break-all;
+        background-color: #fef3c7;
+        padding: 10px;
+        border-radius: 4px;
+        font-size: 0.9em;
+      }
+      .info-text {
+        font-size: 0.9em;
+        color: #64748b;
+        margin-top: 5px;
+      }
+      .refresh-btn {
+        background-color: #f59e0b;
+        font-size: 0.8em;
+        padding: 5px 10px;
+        margin-top: 10px;
+      }
+      .refresh-btn:hover {
+        background-color: #d97706;
+      }
+      .error-banner {
+        background-color: #fee2e2;
+        color: #b91c1c;
+        padding: 15px;
+        border-radius: 6px;
+        margin-bottom: 20px;
+        border: 1px solid #fecaca;
+        display: none;
+      }
+      .setup-instructions {
+        background-color: #f3f4f6;
+        padding: 15px;
+        border-radius: 6px;
+        margin: 20px 0;
+        font-size: 0.9em;
+      }
+      code {
+        background-color: #e5e7eb;
+        padding: 2px 5px;
+        border-radius: 4px;
+        font-family: monospace;
+      }
+    </style>
   </head>
   <body>
-    <h1>Dittofeed Library Test</h1>
+    <h1>Dittofeed SDK Tester</h1>
+    
+    <div id="error-banner" class="error-banner">
+      <strong>API Key Not Found!</strong> Please add your Dittofeed Write Key to the <code>.env</code> file to use this tester.
+      <div class="setup-instructions">
+        <p><strong>Setup Instructions:</strong></p>
+        <ol>
+          <li>Copy <code>.env.example</code> to <code>.env</code></li>
+          <li>Replace <code>YOUR_DITTOFEED_WRITE_KEY_HERE</code> with your actual API key</li>
+          <li>Restart the development server</li>
+        </ol>
+      </div>
+    </div>
+    
+    <div class="container">
+      <h2>SDK Testing Panel</h2>
+      
+      <div class="checkbox-container">
+        <label class="checkbox-label">
+          <input type="checkbox" id="use-identified" checked> 
+          Use identified tracking (userId: "user-sdk-web")
+        </label>
+      </div>
+      
+      <div class="anonymous-id-container">
+        <label class="anonymous-id-label">Current Anonymous ID:</label>
+        <div class="anonymous-id" id="current-anonymous-id">Initializing...</div>
+        <p class="info-text">This ID is used for anonymous tracking when no user ID is provided.</p>
+        <button class="refresh-btn" id="refresh-anonymous-id">Refresh ID Display</button>
+      </div>
+      
+      <div class="form-group">
+        <label for="event-name">Event Name (for track):</label>
+        <input type="text" id="event-name" placeholder="e.g., Button Clicked">
+      </div>
+      
+      <div class="form-group">
+        <label for="page-name">Page Name (for page):</label>
+        <input type="text" id="page-name" placeholder="e.g., Home Page">
+      </div>
+      
+      <div class="form-group">
+        <label for="screen-name">Screen Name (for screen):</label>
+        <input type="text" id="screen-name" placeholder="e.g., Profile Screen">
+      </div>
+      
+      <div class="form-group">
+        <label for="properties">Properties (JSON):</label>
+        <textarea id="properties" rows="3" placeholder='{"key": "value"}'></textarea>
+      </div>
+      
+      <div class="btn-group">
+        <button id="identify-btn">Identify</button>
+        <button id="track-btn">Track</button>
+        <button id="page-btn">Page</button>
+        <button id="screen-btn">Screen</button>
+        <button id="flush-btn">Flush</button>
+        <button id="reset-anonymous-btn">Reset Anonymous ID</button>
+      </div>
+      
+      <div id="response" class="response"></div>
+    </div>
+
     <script type="text/javascript">
       var _df = _df || [];
+      var dfInitialized = false;
 
       (function () {
-        var methods = ["track", "identify", "page", "flush"];
+        var methods = ["track", "identify", "page", "screen", "flush", "getAnonymousId", "resetAnonymousId"];
         methods.forEach(function (method) {
           _df[method] = function () {
             _df.push([method].concat(Array.prototype.slice.call(arguments)));
@@ -23,16 +234,234 @@
         script.src = "http://localhost:5173/src/snippetEntry.js"; // URL where Vite serves your file
 
         script.id = "df-tracker";
-        // The API key will be injected by Vite during the build process
-        script.setAttribute("data-write-key", process.env.DITTOFEED_WRITE_KEY);
         script.setAttribute("data-host", "http://localhost:3001");
 
+        // Listen for initialization error
+        script.addEventListener('error', function() {
+          document.getElementById('error-banner').style.display = 'block';
+        });
+
         document.head.appendChild(script);
+        
+        // Check when the SDK is fully loaded
+        var checkInterval = setInterval(function() {
+          if (typeof _df.getAnonymousId === 'function' && typeof _df.resetAnonymousId === 'function') {
+            clearInterval(checkInterval);
+            dfInitialized = true;
+            console.log('Dittofeed SDK fully initialized');
+            updateAnonymousIdDisplay();
+          }
+        }, 500);
+
+        // After 5 seconds, if not initialized, show error
+        setTimeout(function() {
+          if (!dfInitialized) {
+            document.getElementById('error-banner').style.display = 'block';
+          }
+        }, 5000);
       })();
 
-      _df.identify({
-        userId: "123",
-        email: "test@email.com"
+      // Wait for SDK to initialize
+      document.addEventListener('DOMContentLoaded', function() {
+        // Helper function to show response
+        function showResponse(message) {
+          const responseEl = document.getElementById('response');
+          responseEl.textContent = message;
+          responseEl.style.display = 'block';
+          setTimeout(() => {
+            responseEl.style.display = 'none';
+          }, 3000);
+        }
+
+        // Helper function to parse properties
+        function getProperties() {
+          const propertiesText = document.getElementById('properties').value.trim();
+          if (!propertiesText) return {};
+          
+          try {
+            return JSON.parse(propertiesText);
+          } catch (e) {
+            showResponse('Error parsing properties JSON');
+            return {};
+          }
+        }
+        
+        // Helper function to update anonymous ID display
+        function updateAnonymousIdDisplay() {
+          const anonymousIdEl = document.getElementById('current-anonymous-id');
+          
+          if (dfInitialized && typeof _df.getAnonymousId === 'function') {
+            try {
+              console.log("Attempting to get anonymous ID...");
+              const anonymousId = _df.getAnonymousId();
+              console.log("Retrieved anonymous ID:", anonymousId);
+              anonymousIdEl.textContent = anonymousId || 'No ID available';
+            } catch (err) {
+              console.error("Error getting anonymous ID:", err);
+              anonymousIdEl.textContent = 'Error retrieving ID: ' + err.message;
+            }
+          } else {
+            console.log("SDK not ready for getAnonymousId:", { 
+              initialized: dfInitialized, 
+              hasMethod: typeof _df.getAnonymousId === 'function' 
+            });
+            anonymousIdEl.textContent = 'SDK not fully initialized yet...';
+          }
+        }
+        
+        // Set up refresh button for anonymous ID
+        document.getElementById('refresh-anonymous-id').addEventListener('click', function() {
+          updateAnonymousIdDisplay();
+          showResponse('Anonymous ID display refreshed');
+        });
+
+        // Identify Button
+        document.getElementById('identify-btn').addEventListener('click', function() {
+          const useIdentified = document.getElementById('use-identified').checked;
+          const properties = getProperties();
+          
+          if (useIdentified) {
+            _df.identify({
+              userId: "user-sdk-web",
+              traits: properties
+            });
+          } else {
+            _df.identify({
+              traits: properties
+            });
+          }
+          
+          showResponse('Identify called');
+        });
+
+        // Track Button
+        document.getElementById('track-btn').addEventListener('click', function() {
+          const useIdentified = document.getElementById('use-identified').checked;
+          const eventName = document.getElementById('event-name').value.trim() || 'Test Event';
+          const properties = getProperties();
+          
+          if (useIdentified) {
+            _df.track({
+              userId: "user-sdk-web",
+              event: eventName,
+              properties: properties
+            });
+          } else {
+            _df.track({
+              event: eventName,
+              properties: properties
+            });
+          }
+          
+          showResponse(`Track called: ${eventName}`);
+        });
+
+        // Page Button
+        document.getElementById('page-btn').addEventListener('click', function() {
+          const useIdentified = document.getElementById('use-identified').checked;
+          const pageName = document.getElementById('page-name').value.trim() || 'Test Page';
+          const properties = getProperties();
+          
+          if (useIdentified) {
+            _df.page({
+              userId: "user-sdk-web",
+              name: pageName,
+              properties: properties
+            });
+          } else {
+            _df.page({
+              name: pageName,
+              properties: properties
+            });
+          }
+          
+          showResponse(`Page called: ${pageName}`);
+        });
+
+        // Screen Button
+        document.getElementById('screen-btn').addEventListener('click', function() {
+          const useIdentified = document.getElementById('use-identified').checked;
+          const screenName = document.getElementById('screen-name').value.trim() || 'Test Screen';
+          const properties = getProperties();
+          
+          if (useIdentified) {
+            _df.screen({
+              userId: "user-sdk-web",
+              name: screenName,
+              properties: properties
+            });
+          } else {
+            _df.screen({
+              name: screenName,
+              properties: properties
+            });
+          }
+          
+          showResponse(`Screen called: ${screenName}`);
+        });
+
+        // Flush Button
+        document.getElementById('flush-btn').addEventListener('click', function() {
+          _df.flush().then(() => {
+            showResponse('Flush completed');
+          }).catch(err => {
+            showResponse(`Flush error: ${err.message}`);
+          });
+        });
+
+        // Reset Anonymous ID Button
+        document.getElementById('reset-anonymous-btn').addEventListener('click', function() {
+          // If SDK is not initialized, we need to check periodically
+          const maxRetries = 10;
+          let retries = 0;
+          
+          function attemptReset() {
+            if (typeof _df.resetAnonymousId === 'function') {
+              try {
+                const newId = _df.resetAnonymousId();
+                showResponse(`Anonymous ID reset: ${newId}`);
+                dfInitialized = true;
+                updateAnonymousIdDisplay();
+              } catch (err) {
+                showResponse(`Error resetting anonymous ID: ${err.message}`);
+              }
+            } else {
+              retries++;
+              if (retries < maxRetries) {
+                showResponse(`SDK initializing, please wait... (attempt ${retries}/${maxRetries})`);
+                setTimeout(attemptReset, 500);
+              } else {
+                showResponse('SDK initialization timeout. Please reload the page.');
+              }
+            }
+          }
+          
+          if (dfInitialized) {
+            try {
+              const newId = _df.resetAnonymousId();
+              showResponse(`Anonymous ID reset: ${newId}`);
+              updateAnonymousIdDisplay();
+            } catch (err) {
+              showResponse(`Error resetting anonymous ID: ${err.message}`);
+            }
+          } else {
+            showResponse('SDK initializing, please wait...');
+            setTimeout(attemptReset, 500);
+          }
+        });
+        
+        // Try to update anonymous ID display on load
+        updateAnonymousIdDisplay();
+        
+        // Set interval to check for SDK initialization and update the anonymous ID display
+        if (!dfInitialized) {
+          const idCheckInterval = setInterval(function() {
+            if (dfInitialized) {
+              updateAnonymousIdDisplay();
+              clearInterval(idCheckInterval);
+            }
+          }, 1000);
+        }
       });
     </script>
   </body>

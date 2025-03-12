@@ -416,12 +416,12 @@
           if (useIdentified) {
             _df.subscribe({
               userId: "user-sdk-web",
-              group: subscriptionGroup,
+              subscriptionGroupId: subscriptionGroup,
               properties: properties
             });
           } else {
             _df.subscribe({
-              group: subscriptionGroup,
+              subscriptionGroupId: subscriptionGroup,
               properties: properties
             });
           }
@@ -438,12 +438,12 @@
           if (useIdentified) {
             _df.unsubscribe({
               userId: "user-sdk-web",
-              group: subscriptionGroup,
+              subscriptionGroupId: subscriptionGroup,
               properties: properties
             });
           } else {
             _df.unsubscribe({
-              group: subscriptionGroup,
+              subscriptionGroupId: subscriptionGroup,
               properties: properties
             });
           }

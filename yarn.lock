@@ -5,10 +5,10 @@ __metadata:
   version: 8
   cacheKey: 10
 
-"@dittofeed/sdk-js-base@npm:^0.4.2":
-  version: 0.4.2
-  resolution: "@dittofeed/sdk-js-base@npm:0.4.2"
-  checksum: 10/2a4a20fa747f5246aa1cc16a539474278cc0eae1cc05a552d39843a74c867e94b8c762cdbce4553015c87f7c626607a6c7085bd2b5ca2e08775a800274d45e63
+"@dittofeed/sdk-js-base@npm:^0.4.3":
+  version: 0.4.3
+  resolution: "@dittofeed/sdk-js-base@npm:0.4.3"
+  checksum: 10/c4f5394bbd51b6095bad1fa092adc7cc14bd76f0e23690a1ddb80916d398c989f8248af7632d701a37bbfa937ad706bb3e41f72a98f5442aad2967ffe5e054e8
   languageName: node
   linkType: hard
 
@@ -16,7 +16,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@dittofeed/sdk-web@workspace:."
   dependencies:
-    "@dittofeed/sdk-js-base": "npm:^0.4.2"
+    "@dittofeed/sdk-js-base": "npm:^0.4.3"
     "@types/uuid": "npm:^9.0.2"
     typescript: "npm:^5.1.0"
     uuid: "npm:^9.0.0"

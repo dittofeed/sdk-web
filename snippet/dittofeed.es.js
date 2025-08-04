@@ -7,25 +7,25 @@ var y = globalThis && globalThis.__awaiter || function(s, e, t, n) {
   return new (t || (t = Promise))(function(o, r) {
     function d(c) {
       try {
-        h(n.next(c));
-      } catch (g) {
-        r(g);
-      }
-    }
-    function l(c) {
-      try {
-        h(n.throw(c));
+        l(n.next(c));
       } catch (g) {
         r(g);
       }
     }
     function h(c) {
-      c.done ? o(c.value) : i(c.value).then(d, l);
+      try {
+        l(n.throw(c));
+      } catch (g) {
+        r(g);
+      }
     }
-    h((n = n.apply(s, e || [])).next());
+    function l(c) {
+      c.done ? o(c.value) : i(c.value).then(d, h);
+    }
+    l((n = n.apply(s, e || [])).next());
   });
 };
-class v {
+class A {
   constructor({
     batchSize: e,
     timeout: t,
@@ -98,7 +98,7 @@ class v {
     });
   }
 }
-var S = globalThis && globalThis.__awaiter || function(s, e, t, n) {
+var I = globalThis && globalThis.__awaiter || function(s, e, t, n) {
   function i(o) {
     return o instanceof t ? o : new t(function(r) {
       r(o);
@@ -107,30 +107,38 @@ var S = globalThis && globalThis.__awaiter || function(s, e, t, n) {
   return new (t || (t = Promise))(function(o, r) {
     function d(c) {
       try {
-        h(n.next(c));
-      } catch (g) {
-        r(g);
-      }
-    }
-    function l(c) {
-      try {
-        h(n.throw(c));
+        l(n.next(c));
       } catch (g) {
         r(g);
       }
     }
     function h(c) {
-      c.done ? o(c.value) : i(c.value).then(d, l);
+      try {
+        l(n.throw(c));
+      } catch (g) {
+        r(g);
+      }
     }
-    h((n = n.apply(s, e || [])).next());
+    function l(c) {
+      c.done ? o(c.value) : i(c.value).then(d, h);
+    }
+    l((n = n.apply(s, e || [])).next());
   });
+}, S = globalThis && globalThis.__rest || function(s, e) {
+  var t = {};
+  for (var n in s)
+    Object.prototype.hasOwnProperty.call(s, n) && e.indexOf(n) < 0 && (t[n] = s[n]);
+  if (s != null && typeof Object.getOwnPropertySymbols == "function")
+    for (var i = 0, n = Object.getOwnPropertySymbols(s); i < n.length; i++)
+      e.indexOf(n[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, n[i]) && (t[n[i]] = s[n[i]]);
+  return t;
 };
 const m = {
   Identify: "identify",
   Track: "track",
   Page: "page",
   Screen: "screen"
-}, p = {
+}, w = {
   Subscribe: "Subscribe",
   Unsubscribe: "Unsubscribe"
 }, D = {
@@ -155,99 +163,97 @@ const m = {
   GroupUserAssignment: "DFGroupUserAssignment",
   UserGroupAssignment: "DFUserGroupAssignment"
 };
-class T {
-  constructor({ issueRequest: e, writeKey: t, host: n = "https://app.dittofeed.com", uuid: i, setTimeout: o, clearTimeout: r, baseDelay: d, retries: l }) {
-    this.batchQueue = new v({
+class O {
+  constructor({ issueRequest: e, writeKey: t, host: n = "https://app.dittofeed.com", uuid: i, setTimeout: o, clearTimeout: r, baseDelay: d, retries: h }) {
+    this.batchQueue = new A({
       timeout: 500,
       batchSize: 5,
       setTimeout: o,
       clearTimeout: r,
       baseDelay: d,
-      retries: l,
-      executeBatch: (h) => S(this, void 0, void 0, function* () {
+      retries: h,
+      executeBatch: (l) => I(this, void 0, void 0, function* () {
         yield e({
-          batch: h
+          batch: l
         }, { writeKey: t, host: n });
       })
     }), this.uuid = i;
   }
   identify(e) {
     var t;
-    const n = Object.assign({ messageId: (t = e.messageId) !== null && t !== void 0 ? t : this.uuid(), type: m.Identify }, e);
+    const n = Object.assign(Object.assign({}, e), { messageId: (t = e.messageId) !== null && t !== void 0 ? t : this.uuid(), type: m.Identify });
     this.batchQueue.submit(n);
   }
   track(e) {
     var t;
-    const n = Object.assign({ messageId: (t = e.messageId) !== null && t !== void 0 ? t : this.uuid(), type: m.Track }, e);
+    const n = Object.assign(Object.assign({}, e), { messageId: (t = e.messageId) !== null && t !== void 0 ? t : this.uuid(), type: m.Track });
     this.batchQueue.submit(n);
   }
   page(e) {
     var t;
-    const n = Object.assign({ messageId: (t = e.messageId) !== null && t !== void 0 ? t : this.uuid(), type: m.Page }, e);
+    const n = Object.assign(Object.assign({}, e), { messageId: (t = e.messageId) !== null && t !== void 0 ? t : this.uuid(), type: m.Page });
     this.batchQueue.submit(n);
   }
   screen(e) {
     var t;
-    const n = Object.assign({ messageId: (t = e.messageId) !== null && t !== void 0 ? t : this.uuid(), type: m.Screen }, e);
+    const n = Object.assign(Object.assign({}, e), { messageId: (t = e.messageId) !== null && t !== void 0 ? t : this.uuid(), type: m.Screen });
     this.batchQueue.submit(n);
   }
   subscribe(e) {
-    var t;
-    const n = Object.assign({ messageId: (t = e.messageId) !== null && t !== void 0 ? t : this.uuid(), type: m.Track, event: D.SubscriptionChange, properties: {
-      subscriptionId: e.subscriptionGroupId,
-      change: p.Subscribe
-    } }, e);
-    console.log("subscribe inner", n), this.batchQueue.submit(n);
+    const { messageId: t, subscriptionGroupId: n } = e, i = S(e, ["messageId", "subscriptionGroupId"]), o = Object.assign(Object.assign({}, i), { messageId: t ?? this.uuid(), type: m.Track, event: D.SubscriptionChange, properties: {
+      subscriptionId: n,
+      change: w.Subscribe
+    } });
+    this.batchQueue.submit(o);
   }
   unsubscribe(e) {
-    var t;
-    const n = Object.assign({ messageId: (t = e.messageId) !== null && t !== void 0 ? t : this.uuid(), type: m.Track, event: D.SubscriptionChange, properties: {
-      subscriptionId: e.subscriptionGroupId,
-      change: p.Unsubscribe
-    } }, e);
-    this.batchQueue.submit(n);
+    const { messageId: t, subscriptionGroupId: n } = e, i = S(e, ["messageId", "subscriptionGroupId"]), o = Object.assign(Object.assign({}, i), { messageId: t ?? this.uuid(), type: m.Track, event: D.SubscriptionChange, properties: {
+      subscriptionId: n,
+      change: w.Unsubscribe
+    } });
+    this.batchQueue.submit(o);
   }
   flush() {
-    return S(this, void 0, void 0, function* () {
+    return I(this, void 0, void 0, function* () {
       yield this.batchQueue.flush();
     });
   }
 }
 let f;
-const A = new Uint8Array(16);
-function E() {
+const F = new Uint8Array(16);
+function T() {
   if (!f && (f = typeof crypto < "u" && crypto.getRandomValues && crypto.getRandomValues.bind(crypto), !f))
     throw new Error("crypto.getRandomValues() not supported. See https://github.com/uuidjs/uuid#getrandomvalues-not-supported");
-  return f(A);
+  return f(F);
 }
 const u = [];
 for (let s = 0; s < 256; ++s)
   u.push((s + 256).toString(16).slice(1));
-function F(s, e = 0) {
+function U(s, e = 0) {
   return (u[s[e + 0]] + u[s[e + 1]] + u[s[e + 2]] + u[s[e + 3]] + "-" + u[s[e + 4]] + u[s[e + 5]] + "-" + u[s[e + 6]] + u[s[e + 7]] + "-" + u[s[e + 8]] + u[s[e + 9]] + "-" + u[s[e + 10]] + u[s[e + 11]] + u[s[e + 12]] + u[s[e + 13]] + u[s[e + 14]] + u[s[e + 15]]).toLowerCase();
 }
-const O = typeof crypto < "u" && crypto.randomUUID && crypto.randomUUID.bind(crypto), w = {
-  randomUUID: O
+const E = typeof crypto < "u" && crypto.randomUUID && crypto.randomUUID.bind(crypto), v = {
+  randomUUID: E
 };
 function k(s, e, t) {
-  if (w.randomUUID && !e && !s)
-    return w.randomUUID();
+  if (v.randomUUID && !e && !s)
+    return v.randomUUID();
   s = s || {};
-  const n = s.random || (s.rng || E)();
+  const n = s.random || (s.rng || T)();
   if (n[6] = n[6] & 15 | 64, n[8] = n[8] & 63 | 128, e) {
     t = t || 0;
     for (let i = 0; i < 16; ++i)
       e[t + i] = n[i];
     return e;
   }
-  return F(n);
+  return U(n);
 }
-const b = class a {
+const p = class a {
   constructor(e, t) {
     this.anonymousId = null, this.logger = null, this.baseSdk = e, this.logger = t ?? null;
   }
   static createBaseSdk(e) {
-    return new T({
+    return new O({
       uuid: () => k(),
       issueRequest: async (t, { host: n = "https://dittofeed.com", writeKey: i }) => {
         const o = `${n}/api/public/apps/batch`, d = await fetch(o, {
@@ -377,7 +383,7 @@ const b = class a {
     return !("anonymousId" in e) && !("userId" in e) ? t = {
       ...e,
       anonymousId: this.getAnonymousId()
-    } : t = e, console.log("subscribe outer", t), this.baseSdk.subscribe(t);
+    } : t = e, this.baseSdk.subscribe(t);
   }
   /**
    * A convenience method for unsubscribing a user from a subscription group.
@@ -492,18 +498,18 @@ const b = class a {
     const n = encodeURIComponent(e), i = `${a.ANONYMOUS_ID}=${n};expires=${t.toUTCString()};path=/;SameSite=Lax`;
     try {
       document.cookie = i;
-    } catch (l) {
-      (o = this.logger) == null || o.warn("Failed to set cookie:", l);
+    } catch (h) {
+      (o = this.logger) == null || o.warn("Failed to set cookie:", h);
     }
     try {
       localStorage.setItem(a.ANONYMOUS_ID, e);
-    } catch (l) {
-      (r = this.logger) == null || r.warn("Failed to access localStorage:", l);
+    } catch (h) {
+      (r = this.logger) == null || r.warn("Failed to access localStorage:", h);
     }
     try {
       sessionStorage.setItem(a.ANONYMOUS_ID, e);
-    } catch (l) {
-      (d = this.logger) == null || d.warn("Failed to access sessionStorage:", l);
+    } catch (h) {
+      (d = this.logger) == null || d.warn("Failed to access sessionStorage:", h);
     }
   }
   deleteAnonymousId() {
@@ -536,53 +542,31 @@ const b = class a {
     return typeof window < "u" && typeof document < "u";
   }
 };
-b.instance = null;
-b.ANONYMOUS_ID = "DfAnonymousId";
-let U = b;
-const I = {
-  DITTOFEED_WRITE_KEY: "Basic M2E2ZjM2N2QtY2Q4ZS00ZTM1LWE2MWMtMGQ2NTg2MjAxYjNmOjFlOTBmNzk0YTQ3ZDc2MjI=",
-  API_HOST: "http://localhost:3001"
-};
-function M() {
+p.instance = null;
+p.ANONYMOUS_ID = "DfAnonymousId";
+let b = p;
+function x() {
   const s = document.getElementById("df-tracker");
-  let e = null, t = I.API_HOST;
-  if (s) {
-    e = s.getAttribute("data-write-key");
-    const n = s.getAttribute("data-host");
-    n && (t = n);
-  }
-  return !e && I.DITTOFEED_WRITE_KEY && (e = I.DITTOFEED_WRITE_KEY), e ? {
+  if (!s)
+    return null;
+  const e = s.getAttribute("data-write-key");
+  return e ? {
     writeKey: e,
-    host: t
-  } : (console.error(
-    "No write key found! Please set it in your .env file as DITTOFEED_WRITE_KEY or provide it as a data-write-key attribute on the script tag."
-  ), null);
+    host: s.getAttribute("data-host") ?? void 0
+  } : null;
 }
 (async function() {
-  const e = M();
-  if (!e) {
-    console.error("Failed to initialize SDK: missing configuration.");
-    return;
-  }
-  console.log("Initializing SDK with config:", {
-    writeKey: "Key present (masked for security)",
-    host: e.host
-  });
-  try {
-    const t = window._df, n = await U.init(e);
-    Array.isArray(t) && t.forEach((i) => {
-      if (Array.isArray(i) && i.length > 0) {
-        const o = i[0], r = n[o];
-        typeof r == "function" ? r.apply(n, i.slice(1)) : console.warn(`Method ${o} not found on DittofeedSdk`);
+  const e = x();
+  if (console.log("snippetEntry config", e), e) {
+    const t = window._df;
+    await b.init(e), Array.isArray(t) && t.forEach((n) => {
+      if (Array.isArray(n) && n.length > 0) {
+        const i = n[0];
+        b[i].apply(b, n.slice(1));
       }
-    }), window._df = n, console.log(
-      "DittofeedSdk initialized successfully with methods:",
-      Object.keys(n)
-    );
-  } catch (t) {
-    console.error("Failed to initialize DittofeedSdk:", t);
+    }), window._df = b;
   }
 })();
 export {
-  U as default
+  b as default
 };
